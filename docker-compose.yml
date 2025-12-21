@@ -1,0 +1,53 @@
+# docker-compose.yml para LMW Database UI
+
+version: '3.8'
+
+services:
+  # Frontend React
+  frontend:
+    build: .
+    container_name: lmw_frontend_ui
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    networks:
+      - lmw-network
+
+  # Backend Django (referência para desenvolvimento integrado)
+  backend:
+    image: lmw-database-api:latest  # Assumindo que a imagem do backend já existe
+    container_name: lmw_django_api
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_PORT=8000
+      - DATABASE_URL=postgresql://postgres:password@db:5432/lmw_database
+    depends_on:
+      - db
+    networks:
+      - lmw-network
+
+  # Database PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: lmw_postgres_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=lmw_database
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    networks:
+      - lmw-network
+
+volumes:
+  postgres_data:
+
+networks:
+  lmw-network:
+    driver: bridge
