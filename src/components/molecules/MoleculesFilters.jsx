@@ -1,95 +1,129 @@
 import Select from 'react-select';
-import { useState } from 'react';
 
 const MoleculesFilters = ({ filters, onApply }) => {
-  const [localFilters, setLocalFilters] = useState(filters);
-
-  const handleChange = (field, value) => {
-    setLocalFilters((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleApply = (e) => {
     e.preventDefault();
-    onApply(localFilters);
+    onApply(filters);
   };
 
   const handleClear = () => {
-    const cleared = {
+    onApply({
       database: [],
       origem: [],
       nome_planta: [],
       referencia: [],
       atividade: '',
-    };
-    setLocalFilters(cleared);
-    onApply(cleared);
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-gray-50 p-4 rounded-lg mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+    <form
+      onSubmit={handleApply}
+      className="bg-gray-50 border rounded-lg p-4 mb-6"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
 
-        <Select
-          isMulti
-          isSearchable
-          placeholder="Database"
-          value={localFilters.database}
-          onChange={(v) => handleChange('database', v)}
-          options={[
-            { value: 'pubchem', label: 'PubChem' },
-            { value: 'chembl', label: 'ChEMBL' },
-          ]}
-        />
+        {/* DATABASE */}
+        <div>
+          <label className="text-sm font-medium">Database</label>
+          <Select
+            isMulti
+            isSearchable
+            value={filters.database}
+            onChange={(v) =>
+              onApply({ ...filters, database: v || [] })
+            }
+            placeholder="Selecione..."
+            options={[
+              { value: 'pubchem', label: 'PubChem' },
+              { value: 'chembl', label: 'ChEMBL' },
+              { value: 'drugbank', label: 'DrugBank' },
+            ]}
+          />
+        </div>
 
-        <Select
-          isMulti
-          isSearchable
-          placeholder="Origem"
-          value={localFilters.origem}
-          onChange={(v) => handleChange('origem', v)}
-          options={[
-            { value: 'sementes', label: 'Sementes' },
-            { value: 'extrato vegetal', label: 'Extrato vegetal' },
-          ]}
-        />
+        {/* ORIGEM */}
+        <div>
+          <label className="text-sm font-medium">Origem</label>
+          <Select
+            isMulti
+            isSearchable
+            value={filters.origem}
+            onChange={(v) =>
+              onApply({ ...filters, origem: v || [] })
+            }
+            placeholder="Selecione..."
+            options={[
+              { value: 'sementes', label: 'Sementes' },
+              { value: 'rizoma', label: 'Rizoma' },
+              { value: 'extrato vegetal', label: 'Extrato vegetal' },
+            ]}
+          />
+        </div>
 
-        <Select
-          isMulti
-          isSearchable
-          placeholder="Planta"
-          value={localFilters.nome_planta}
-          onChange={(v) => handleChange('nome_planta', v)}
-          options={[]}
-        />
+        {/* PLANTA */}
+        <div>
+          <label className="text-sm font-medium">Planta</label>
+          <Select
+            isMulti
+            isSearchable
+            value={filters.nome_planta}
+            onChange={(v) =>
+              onApply({ ...filters, nome_planta: v || [] })
+            }
+            placeholder="Buscar planta..."
+            options={[]}
+            noOptionsMessage={() => 'Digite para buscar'}
+          />
+        </div>
 
-        <Select
-          isMulti
-          isSearchable
-          placeholder="Referência"
-          value={localFilters.referencia}
-          onChange={(v) => handleChange('referencia', v)}
-          options={[]}
-        />
+        {/* REFERÊNCIA */}
+        <div>
+          <label className="text-sm font-medium">Referência</label>
+          <Select
+            isMulti
+            isSearchable
+            value={filters.referencia}
+            onChange={(v) =>
+              onApply({ ...filters, referencia: v || [] })
+            }
+            placeholder="Buscar referência..."
+            options={[]}
+            noOptionsMessage={() => 'Digite para buscar'}
+          />
+        </div>
 
-        <input
-          type="text"
-          placeholder="Atividade (palavra-chave)"
-          value={localFilters.atividade}
-          onChange={(e) => handleChange('atividade', e.target.value)}
-          className="px-3 py-2 border rounded-lg"
-        />
+        {/* ATIVIDADE */}
+        <div>
+          <label className="text-sm font-medium">Atividade</label>
+          <input
+            type="text"
+            value={filters.atividade}
+            onChange={(e) =>
+              onApply({ ...filters, atividade: e.target.value })
+            }
+            placeholder="Palavra-chave"
+            className="w-full border px-3 py-2 rounded-lg"
+          />
+        </div>
 
+        {/* BOTÕES */}
         <div className="flex gap-2">
-          <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg">
+          <button
+            type="submit"
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg"
+          >
             Filtrar
           </button>
-          <button type="button" onClick={handleClear} className="px-4 py-2 bg-gray-200 rounded-lg">
+          <button
+            type="button"
+            onClick={handleClear}
+            className="bg-gray-200 px-4 py-2 rounded-lg"
+          >
             Limpar
           </button>
         </div>
+
       </div>
     </form>
   );
