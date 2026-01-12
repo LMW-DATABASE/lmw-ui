@@ -4,7 +4,7 @@ import api from '../services/api';
 import Pagination from '../components/common/Pagination';
 import MoleculesFilters from '../components/molecules/MoleculesFilters';
 
-const normalize = (v) => v?.toString().toLowerCase() || '';
+const normalize = (v) => v?.toString().toLowerCase().trim() || '';
 
 const ListagemMoleculas = () => {
   const navigate = useNavigate();
@@ -28,7 +28,6 @@ const ListagemMoleculas = () => {
   const fetchMolecules = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const response = await api.get('/api/molecules/');
       setAllMolecules(response.data);
@@ -45,10 +44,10 @@ const ListagemMoleculas = () => {
     fetchMolecules();
   }, []);
 
-  // 🔹 FILTRO COMPLETO (LOCAL, SEM QUEBRAR BACKEND)
+  // 🔹 FILTRO LOCAL COMPLETO
   const filteredMolecules = useMemo(() => {
     return allMolecules.filter((mol) => {
-      // busca geral
+      // 🔍 busca geral
       if (
         searchTerm &&
         !(
@@ -58,39 +57,39 @@ const ListagemMoleculas = () => {
         )
       ) return false;
 
-      // database (multi)
+      // 🔹 database (multi)
       if (
         filters.database.length &&
         !filters.database.some((d) =>
-          normalize(mol.database).includes(d.value)
+          normalize(mol.database).includes(normalize(d.value))
         )
       ) return false;
 
-      // origem (multi)
+      // 🔹 origem (multi)
       if (
         filters.origem.length &&
         !filters.origem.some((o) =>
-          normalize(mol.origem).includes(o.value)
+          normalize(mol.origem).includes(normalize(o.value))
         )
       ) return false;
 
-      // planta (parcial + case insensitive)
+      // 🔹 planta (parcial + case insensitive)
       if (
         filters.nome_planta.length &&
         !filters.nome_planta.some((p) =>
-          normalize(mol.nome_planta).includes(p.value)
+          normalize(mol.nome_planta).includes(normalize(p.value))
         )
       ) return false;
 
-      // referência (parcial + case insensitive)
+      // 🔹 referência (parcial + case insensitive)
       if (
         filters.referencia.length &&
         !filters.referencia.some((r) =>
-          normalize(mol.referencia).includes(r.value)
+          normalize(mol.referencia).includes(normalize(r.value))
         )
       ) return false;
 
-      // atividade (palavra-chave)
+      // 🔹 atividade (palavra-chave)
       if (
         filters.atividade &&
         !normalize(mol.activity).includes(normalize(filters.atividade))
@@ -100,10 +99,14 @@ const ListagemMoleculas = () => {
     });
   }, [allMolecules, filters, searchTerm]);
 
+  // 🔹 reset página ao filtrar
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, searchTerm]);
+
   const currentMolecules = useMemo(() => {
     const first = (currentPage - 1) * itemsPerPage;
-    const last = first + itemsPerPage;
-    return filteredMolecules.slice(first, last);
+    return filteredMolecules.slice(first, first + itemsPerPage);
   }, [filteredMolecules, currentPage]);
 
   const totalPages = Math.ceil(filteredMolecules.length / itemsPerPage);

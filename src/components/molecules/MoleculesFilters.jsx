@@ -1,7 +1,44 @@
+import { useEffect, useState } from 'react';
 import Select from 'react-select';
+import api from '../../services/api';
 
 const MoleculesFilters = ({ filters, onApply }) => {
-  const handleApply = (e) => {
+  const [plantasOptions, setPlantasOptions] = useState([]);
+  const [referenciasOptions, setReferenciasOptions] = useState([]);
+
+  /* 🔹 Carrega opções dinâmicas */
+  useEffect(() => {
+    const loadOptions = async () => {
+      try {
+        const res = await api.get('/api/molecules/');
+
+        const plantas = [
+          ...new Set(
+            res.data
+              .map(m => m.nome_planta)
+              .filter(Boolean)
+          ),
+        ].map(p => ({ value: p, label: p }));
+
+        const refs = [
+          ...new Set(
+            res.data
+              .map(m => m.referencia)
+              .filter(Boolean)
+          ),
+        ].map(r => ({ value: r, label: r }));
+
+        setPlantasOptions(plantas);
+        setReferenciasOptions(refs);
+      } catch (err) {
+        console.error('Erro ao carregar filtros:', err);
+      }
+    };
+
+    loadOptions();
+  }, []);
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     onApply(filters);
   };
@@ -18,8 +55,8 @@ const MoleculesFilters = ({ filters, onApply }) => {
 
   return (
     <form
-      onSubmit={handleApply}
-      className="bg-gray-50 border rounded-lg p-4 mb-6"
+      onSubmit={handleSubmit}
+      className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6"
     >
       <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
 
@@ -35,9 +72,9 @@ const MoleculesFilters = ({ filters, onApply }) => {
             }
             placeholder="Selecione..."
             options={[
-              { value: 'pubchem', label: 'PubChem' },
-              { value: 'chembl', label: 'ChEMBL' },
-              { value: 'drugbank', label: 'DrugBank' },
+              { value: 'PubChem', label: 'PubChem' },
+              { value: 'ChEMBL', label: 'ChEMBL' },
+              { value: 'DrugBank', label: 'DrugBank' },
             ]}
           />
         </div>
@@ -72,8 +109,8 @@ const MoleculesFilters = ({ filters, onApply }) => {
               onApply({ ...filters, nome_planta: v || [] })
             }
             placeholder="Buscar planta..."
-            options={[]}
-            noOptionsMessage={() => 'Digite para buscar'}
+            options={plantasOptions}
+            noOptionsMessage={() => 'Nenhuma planta encontrada'}
           />
         </div>
 
@@ -88,8 +125,8 @@ const MoleculesFilters = ({ filters, onApply }) => {
               onApply({ ...filters, referencia: v || [] })
             }
             placeholder="Buscar referência..."
-            options={[]}
-            noOptionsMessage={() => 'Digite para buscar'}
+            options={referenciasOptions}
+            noOptionsMessage={() => 'Nenhuma referência encontrada'}
           />
         </div>
 
@@ -111,14 +148,14 @@ const MoleculesFilters = ({ filters, onApply }) => {
         <div className="flex gap-2">
           <button
             type="submit"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg"
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
           >
             Filtrar
           </button>
           <button
             type="button"
             onClick={handleClear}
-            className="bg-gray-200 px-4 py-2 rounded-lg"
+            className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
           >
             Limpar
           </button>
