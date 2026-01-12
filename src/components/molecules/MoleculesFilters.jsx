@@ -1,97 +1,92 @@
-import { useState } from "react";
+import Select from 'react-select';
+import { useState } from 'react';
 
 const MoleculesFilters = ({ filters, onApply }) => {
-  const [database, setDatabase] = useState(filters.database || []);
-  const [nomePlanta, setNomePlanta] = useState(filters.nome_planta || "");
-  const [referencia, setReferencia] = useState(filters.referencia || "");
+  const [localFilters, setLocalFilters] = useState(filters);
+
+  const handleChange = (field, value) => {
+    setLocalFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    onApply({
-      database: database ? [database] : [],
-      nome_planta: nomePlanta ? [nomePlanta] : [],
-      referencia: referencia ? [referencia] : [],
-    });
+    onApply(localFilters);
   };
 
   const handleClear = () => {
-    setDatabase("");
-    setNomePlanta("");
-    setReferencia("");
-
-    onApply({
+    const cleared = {
       database: [],
+      origem: [],
       nome_planta: [],
       referencia: [],
-    });
+      atividade: '',
+    };
+    setLocalFilters(cleared);
+    onApply(cleared);
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+    <form onSubmit={handleSubmit} className="bg-gray-50 p-4 rounded-lg mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
 
-        {/* Database */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 mb-1">
-            Database
-          </label>
-          <select
-            value={database}
-            onChange={(e) => setDatabase(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="">Todas</option>
-            <option value="PubChem">PubChem</option>
-            <option value="ChEMBL">ChEMBL</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
+        <Select
+          isMulti
+          isSearchable
+          placeholder="Database"
+          value={localFilters.database}
+          onChange={(v) => handleChange('database', v)}
+          options={[
+            { value: 'pubchem', label: 'PubChem' },
+            { value: 'chembl', label: 'ChEMBL' },
+          ]}
+        />
 
-        {/* Nome da Planta */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 mb-1">
-            Planta
-          </label>
-          <input
-            type="text"
-            placeholder="Nome da planta"
-            value={nomePlanta}
-            onChange={(e) => setNomePlanta(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
+        <Select
+          isMulti
+          isSearchable
+          placeholder="Origem"
+          value={localFilters.origem}
+          onChange={(v) => handleChange('origem', v)}
+          options={[
+            { value: 'sementes', label: 'Sementes' },
+            { value: 'extrato vegetal', label: 'Extrato vegetal' },
+          ]}
+        />
 
-        {/* Referência */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium text-gray-700 mb-1">
-            Referência
-          </label>
-          <input
-            type="text"
-            placeholder="Referência"
-            value={referencia}
-            onChange={(e) => setReferencia(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
+        <Select
+          isMulti
+          isSearchable
+          placeholder="Planta"
+          value={localFilters.nome_planta}
+          onChange={(v) => handleChange('nome_planta', v)}
+          options={[]}
+        />
 
-        {/* Botões */}
+        <Select
+          isMulti
+          isSearchable
+          placeholder="Referência"
+          value={localFilters.referencia}
+          onChange={(v) => handleChange('referencia', v)}
+          options={[]}
+        />
+
+        <input
+          type="text"
+          placeholder="Atividade (palavra-chave)"
+          value={localFilters.atividade}
+          onChange={(e) => handleChange('atividade', e.target.value)}
+          className="px-3 py-2 border rounded-lg"
+        />
+
         <div className="flex gap-2">
-          <button
-            type="submit"
-            className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-          >
+          <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg">
             Filtrar
           </button>
-          <button
-            type="button"
-            onClick={handleClear}
-            className="w-full px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
-          >
+          <button type="button" onClick={handleClear} className="px-4 py-2 bg-gray-200 rounded-lg">
             Limpar
           </button>
         </div>
