@@ -19,7 +19,7 @@ const ListagemMoleculas = () => {
     origem: [],
     nome_planta: [],
     referencia: [],
-    atividade: [''], // 🔹 agora é array
+    atividade: [''], // 🔹 múltiplas atividades (OR)
   });
 
   const [showFiltersModal, setShowFiltersModal] = useState(false);
@@ -86,7 +86,7 @@ const ListagemMoleculas = () => {
         )
       ) return false;
 
-      // 🔹 ATIVIDADES MÚLTIPLAS
+      // 🔹 ATIVIDADES — OR (apenas uma precisa bater)
       const atividadesValidas = filters.atividade.filter((a) => a.trim() !== '');
 
       if (

@@ -1,124 +1,205 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import api from '../services/api';
 import MoleculeCard from '../components/molecules/MoleculesCard.jsx';
 import Pagination from '../components/common/Pagination';
+import MoleculesFilters from '../components/molecules/MoleculesFilters';
+
+const normalize = (v) => v?.toString().toLowerCase().trim() || '';
 
 const Home = () => {
-  const [allMolecules, setAllMolecules] = useState([]); // Guarda TODAS as moléculas da busca
+  const [allMolecules, setAllMolecules] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Estados para controlar a paginação no frontend
+  const [filters, setFilters] = useState({
+    database: [],
+    origem: [],
+    nome_planta: [],
+    referencia: [],
+    atividade: [''],
+  });
+
+  const [showFiltersModal, setShowFiltersModal] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
   useEffect(() => {
-    // Busca na API é disparada apenas quando a 'query' muda
     const fetchMolecules = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await api.get('/api/molecules/', {
-          params: { search: query }
+          params: { search: query },
         });
-        setAllMolecules(response.data); // A API agora retorna um array simples
+        setAllMolecules(response.data);
       } catch (err) {
-        console.error("Erro ao buscar moléculas:", err);
-        setError('Não foi possível carregar os dados. Tente novamente mais tarde.');
+        console.error(err);
+        setError('Não foi possível carregar os dados.');
       } finally {
         setLoading(false);
       }
     };
 
-    // Só busca se o usuário realmente pesquisou algo
-    if (query) {
-      fetchMolecules();
-    } else {
-      setAllMolecules([]); // Limpa os resultados se a busca estiver vazia
-    }
+    if (query) fetchMolecules();
+    else setAllMolecules([]);
   }, [query]);
 
-  // Lógica para "fatiar" os resultados e mostrar apenas os da página atual
-  const currentMolecules = useMemo(() => {
-    const firstItemIndex = (currentPage - 1) * itemsPerPage;
-    const lastItemIndex = firstItemIndex + itemsPerPage;
-    return allMolecules.slice(firstItemIndex, lastItemIndex);
-  }, [allMolecules, currentPage, itemsPerPage]);
+  const filteredMolecules = useMemo(() => {
+    return allMolecules.filter((mol) => {
+      if (
+        filters.database.length &&
+        !filters.database.some((db) =>
+          normalize(mol.database) === normalize(db)
+        )
+      ) return false;
 
-  const totalPages = Math.ceil(allMolecules.length / itemsPerPage);
+      if (
+        filters.origem.length &&
+        !filters.origem.some((o) =>
+          normalize(mol.origem).includes(normalize(o.value))
+        )
+      ) return false;
+
+      if (
+        filters.nome_planta.length &&
+        !filters.nome_planta.some((p) =>
+          normalize(mol.nome_planta).includes(normalize(p.value))
+        )
+      ) return false;
+
+      if (
+        filters.referencia.length &&
+        !filters.referencia.some((r) =>
+          normalize(mol.referencia).includes(normalize(r.value))
+        )
+      ) return false;
+
+      const atividadesValidas = filters.atividade.filter((a) => a.trim() !== '');
+      if (
+        atividadesValidas.length &&
+        !atividadesValidas.some((a) =>
+          normalize(mol.activity).includes(normalize(a))
+        )
+      ) return false;
+
+      return true;
+    });
+  }, [allMolecules, filters]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, query]);
+
+  const currentMolecules = useMemo(() => {
+    const first = (currentPage - 1) * itemsPerPage;
+    return filteredMolecules.slice(first, first + itemsPerPage);
+  }, [filteredMolecules, currentPage]);
+
+  const totalPages = Math.ceil(filteredMolecules.length / itemsPerPage);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setCurrentPage(1); // Reseta para a página 1 a cada nova busca
+    setCurrentPage(1);
     setQuery(searchTerm);
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
   };
 
   return (
     <div className="bg-gray-50 min-h-[calc(100vh-160px)] p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
 
-        {/* Seção de Busca */}
+        {/* BUSCA */}
         <div className="mb-8 bg-white p-6 rounded-lg shadow">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Buscar Moléculas</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Buscar Moléculas
+          </h1>
+
+          {/* 🔍 BOTÃO FILTROS (ESQUERDA) */}
+          <div className="flex justify-start mb-4">
+            <button
+              onClick={() => setShowFiltersModal(true)}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+            >
+              🔍 Filtros avançados
+            </button>
+          </div>
+
+          {/* INPUT DE BUSCA */}
           <form onSubmit={handleSearch} className="flex items-center gap-4">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Digite o nome da molécula (ex: Cafeína)"
-              className="flex-grow px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flex-grow px-4 py-3 border rounded-lg"
             />
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200 shadow-sm disabled:opacity-50"
+              className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50"
             >
               {loading ? 'Buscando...' : 'Buscar'}
             </button>
           </form>
         </div>
 
-        {/* Contagem de Resultados */}
-        <div className="mb-4 text-sm text-gray-600">
-          {allMolecules.length > 0 && `Mostrando de ${ (currentPage - 1) * itemsPerPage + 1 } a ${Math.min(currentPage * itemsPerPage, allMolecules.length)} de ${allMolecules.length} resultados.`}
-        </div>
+        {/* RESULTADOS */}
+        {loading && <div className="text-center py-10">Carregando...</div>}
+        {error && <div className="text-center py-10 text-red-600">{error}</div>}
 
-        {/* Seção de Resultados */}
-        <div>
-          {loading && <div className="text-center py-10"><p className="text-gray-600">Carregando moléculas...</p></div>}
-          {error && <div className="text-center py-10"><p className="text-red-600">{error}</p></div>}
-          {!loading && !error && currentMolecules.length === 0 && (
-            <div className="text-center py-10">
-              <p className="text-gray-600">{query ? 'Nenhuma molécula encontrada para sua busca.' : 'Realize uma busca para ver os resultados.'}</p>
-            </div>
-          )}
-          {!loading && !error && currentMolecules.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {currentMolecules.map(molecule => (
-                <MoleculeCard key={molecule.id} molecule={molecule} />
-              ))}
-            </div>
-          )}
-        </div>
+        {!loading && !error && currentMolecules.length === 0 && (
+          <div className="text-center py-10">
+            {query ? 'Nenhuma molécula encontrada.' : 'Realize uma busca.'}
+          </div>
+        )}
 
-        {/* Renderiza a Paginação */}
-        <div className="mt-8">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
+        {!loading && !error && currentMolecules.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {currentMolecules.map((m) => (
+              <MoleculeCard key={m.id} molecule={m} />
+            ))}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="mt-8">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
       </div>
+
+      {/* MODAL FILTROS */}
+      {showFiltersModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-xl shadow-lg p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold">Filtros avançados</h2>
+              <button
+                onClick={() => setShowFiltersModal(false)}
+                className="text-xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <MoleculesFilters
+              filters={filters}
+              onApply={(newFilters) => {
+                setFilters(newFilters);
+                setShowFiltersModal(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Home;
-
