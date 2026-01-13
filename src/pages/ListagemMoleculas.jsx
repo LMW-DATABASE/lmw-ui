@@ -19,8 +19,10 @@ const ListagemMoleculas = () => {
     origem: [],
     nome_planta: [],
     referencia: [],
-    atividade: '',
+    atividade: [''], // 🔹 agora é array
   });
+
+  const [showFiltersModal, setShowFiltersModal] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
@@ -44,10 +46,9 @@ const ListagemMoleculas = () => {
     fetchMolecules();
   }, []);
 
-  // 🔹 FILTRO LOCAL COMPLETO
+  // 🔹 FILTRO LOCAL
   const filteredMolecules = useMemo(() => {
     return allMolecules.filter((mol) => {
-      // 🔍 busca geral
       if (
         searchTerm &&
         !(
@@ -57,15 +58,13 @@ const ListagemMoleculas = () => {
         )
       ) return false;
 
-      // 🔹 database (multi)
       if (
         filters.database.length &&
-        !filters.database.some((d) =>
-          normalize(mol.database).includes(normalize(d.value))
+        !filters.database.some((db) =>
+          normalize(mol.database) === normalize(db)
         )
       ) return false;
 
-      // 🔹 origem (multi)
       if (
         filters.origem.length &&
         !filters.origem.some((o) =>
@@ -73,7 +72,6 @@ const ListagemMoleculas = () => {
         )
       ) return false;
 
-      // 🔹 planta (parcial + case insensitive)
       if (
         filters.nome_planta.length &&
         !filters.nome_planta.some((p) =>
@@ -81,7 +79,6 @@ const ListagemMoleculas = () => {
         )
       ) return false;
 
-      // 🔹 referência (parcial + case insensitive)
       if (
         filters.referencia.length &&
         !filters.referencia.some((r) =>
@@ -89,17 +86,20 @@ const ListagemMoleculas = () => {
         )
       ) return false;
 
-      // 🔹 atividade (palavra-chave)
+      // 🔹 ATIVIDADES MÚLTIPLAS
+      const atividadesValidas = filters.atividade.filter((a) => a.trim() !== '');
+
       if (
-        filters.atividade &&
-        !normalize(mol.activity).includes(normalize(filters.atividade))
+        atividadesValidas.length &&
+        !atividadesValidas.some((a) =>
+          normalize(mol.activity).includes(normalize(a))
+        )
       ) return false;
 
       return true;
     });
   }, [allMolecules, filters, searchTerm]);
 
-  // 🔹 reset página ao filtrar
   useEffect(() => {
     setCurrentPage(1);
   }, [filters, searchTerm]);
@@ -127,9 +127,16 @@ const ListagemMoleculas = () => {
           </button>
         </div>
 
-        <MoleculesFilters filters={filters} onApply={setFilters} />
+        <div className="flex justify-between items-center mb-4">
+          <button
+            onClick={() => setShowFiltersModal(true)}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
+          >
+            🔍 Filtros avançados
+          </button>
+        </div>
 
-        <div className="mb-6 mt-4">
+        <div className="mb-6">
           <input
             type="text"
             value={searchTerm}
@@ -192,6 +199,25 @@ const ListagemMoleculas = () => {
           </div>
         )}
       </div>
+
+      {showFiltersModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-xl shadow-lg p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold">Filtros avançados</h2>
+              <button onClick={() => setShowFiltersModal(false)}>✕</button>
+            </div>
+
+            <MoleculesFilters
+              filters={filters}
+              onApply={(newFilters) => {
+                setFilters(newFilters);
+                setShowFiltersModal(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

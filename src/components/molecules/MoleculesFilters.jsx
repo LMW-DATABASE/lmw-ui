@@ -1,168 +1,201 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import api from '../../services/api';
 
 const MoleculesFilters = ({ filters, onApply }) => {
-  const [plantasOptions, setPlantasOptions] = useState([]);
-  const [referenciasOptions, setReferenciasOptions] = useState([]);
+  const [options, setOptions] = useState({
+    database: [],
+    origem: [],
+    nome_planta: [],
+    referencia: [],
+  });
 
-  /* 🔹 Carrega opções dinâmicas */
+  const [localFilters, setLocalFilters] = useState(filters);
+
   useEffect(() => {
-    const loadOptions = async () => {
+    setLocalFilters(filters);
+  }, [filters]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
       try {
         const res = await api.get('/api/molecules/');
+        const data = res.data;
 
-        const plantas = [
-          ...new Set(
-            res.data
-              .map(m => m.nome_planta)
-              .filter(Boolean)
-          ),
-        ].map(p => ({ value: p, label: p }));
+        const unique = (key) =>
+          [...new Set(data.map((i) => i[key]).filter(Boolean))].map((v) => ({
+            label: v,
+            value: v,
+          }));
 
-        const refs = [
-          ...new Set(
-            res.data
-              .map(m => m.referencia)
-              .filter(Boolean)
-          ),
-        ].map(r => ({ value: r, label: r }));
-
-        setPlantasOptions(plantas);
-        setReferenciasOptions(refs);
+        setOptions({
+          database: unique('database'),
+          origem: unique('origem'),
+          nome_planta: unique('nome_planta'),
+          referencia: unique('referencia'),
+        });
       } catch (err) {
-        console.error('Erro ao carregar filtros:', err);
+        console.error(err);
       }
     };
 
-    loadOptions();
+    fetchOptions();
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onApply(filters);
+  const toggleDatabase = (value) => {
+    setLocalFilters((prev) => {
+      const exists = prev.database.includes(value);
+      return {
+        ...prev,
+        database: exists
+          ? prev.database.filter((v) => v !== value)
+          : [...prev.database, value],
+      };
+    });
   };
 
-  const handleClear = () => {
-    onApply({
+  const addAtividade = () => {
+    setLocalFilters((p) => ({
+      ...p,
+      atividade: [...p.atividade, ''],
+    }));
+  };
+
+  const updateAtividade = (index, value) => {
+    setLocalFilters((p) => {
+      const copy = [...p.atividade];
+      copy[index] = value;
+      return { ...p, atividade: copy };
+    });
+  };
+
+  const removeAtividade = (index) => {
+    setLocalFilters((p) => ({
+      ...p,
+      atividade: p.atividade.filter((_, i) => i !== index),
+    }));
+  };
+
+  const clearFilters = () => {
+    setLocalFilters({
       database: [],
       origem: [],
       nome_planta: [],
       referencia: [],
-      atividade: '',
+      atividade: [''],
     });
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+    <div className="space-y-8">
 
-        {/* DATABASE */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
         <div>
-          <label className="text-sm font-medium">Database</label>
+          <label className="block text-sm font-semibold mb-3">Database</label>
+          <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3">
+            {options.database.map((db) => (
+              <label key={db.value} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={localFilters.database.includes(db.value)}
+                  onChange={() => toggleDatabase(db.value)}
+                />
+                {db.label}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold mb-2">Origem</label>
           <Select
             isMulti
-            isSearchable
-            value={filters.database}
+            options={options.origem}
+            value={localFilters.origem}
             onChange={(v) =>
-              onApply({ ...filters, database: v || [] })
+              setLocalFilters((p) => ({ ...p, origem: v }))
             }
-            placeholder="Selecione..."
-            options={[
-              { value: 'PubChem', label: 'PubChem' },
-              { value: 'ChEMBL', label: 'ChEMBL' },
-              { value: 'DrugBank', label: 'DrugBank' },
-            ]}
           />
         </div>
 
-        {/* ORIGEM */}
         <div>
-          <label className="text-sm font-medium">Origem</label>
+          <label className="block text-sm font-semibold mb-2">Nome da Planta</label>
           <Select
             isMulti
-            isSearchable
-            value={filters.origem}
+            options={options.nome_planta}
+            value={localFilters.nome_planta}
             onChange={(v) =>
-              onApply({ ...filters, origem: v || [] })
+              setLocalFilters((p) => ({ ...p, nome_planta: v }))
             }
-            placeholder="Selecione..."
-            options={[
-              { value: 'sementes', label: 'Sementes' },
-              { value: 'rizoma', label: 'Rizoma' },
-              { value: 'extrato vegetal', label: 'Extrato vegetal' },
-            ]}
           />
         </div>
 
-        {/* PLANTA */}
         <div>
-          <label className="text-sm font-medium">Planta</label>
+          <label className="block text-sm font-semibold mb-2">Referência</label>
           <Select
             isMulti
-            isSearchable
-            value={filters.nome_planta}
+            options={options.referencia}
+            value={localFilters.referencia}
             onChange={(v) =>
-              onApply({ ...filters, nome_planta: v || [] })
+              setLocalFilters((p) => ({ ...p, referencia: v }))
             }
-            placeholder="Buscar planta..."
-            options={plantasOptions}
-            noOptionsMessage={() => 'Nenhuma planta encontrada'}
           />
         </div>
 
-        {/* REFERÊNCIA */}
-        <div>
-          <label className="text-sm font-medium">Referência</label>
-          <Select
-            isMulti
-            isSearchable
-            value={filters.referencia}
-            onChange={(v) =>
-              onApply({ ...filters, referencia: v || [] })
-            }
-            placeholder="Buscar referência..."
-            options={referenciasOptions}
-            noOptionsMessage={() => 'Nenhuma referência encontrada'}
-          />
-        </div>
+        {/* 🔹 ATIVIDADES DINÂMICAS */}
+        <div className="md:col-span-2">
+          <label className="block text-sm font-semibold mb-2">
+            Atividades (palavras-chave)
+          </label>
 
-        {/* ATIVIDADE */}
-        <div>
-          <label className="text-sm font-medium">Atividade</label>
-          <input
-            type="text"
-            value={filters.atividade}
-            onChange={(e) =>
-              onApply({ ...filters, atividade: e.target.value })
-            }
-            placeholder="Palavra-chave"
-            className="w-full border px-3 py-2 rounded-lg"
-          />
-        </div>
+          <div className="space-y-3">
+            {localFilters.atividade.map((a, i) => (
+              <div key={i} className="flex gap-2">
+                <input
+                  type="text"
+                  value={a}
+                  onChange={(e) => updateAtividade(i, e.target.value)}
+                  className="flex-1 px-4 py-2 border rounded-lg"
+                  placeholder="Ex: antifúngica"
+                />
+                {localFilters.atividade.length > 1 && (
+                  <button
+                    onClick={() => removeAtividade(i)}
+                    className="px-3 bg-red-100 rounded-lg"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
 
-        {/* BOTÕES */}
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-          >
-            Filtrar
-          </button>
-          <button
-            type="button"
-            onClick={handleClear}
-            className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
-          >
-            Limpar
-          </button>
+            <button
+              onClick={addAtividade}
+              className="text-indigo-600 text-sm hover:underline"
+            >
+              + Adicionar atividade
+            </button>
+          </div>
         </div>
-
       </div>
-    </form>
+
+      <div className="flex justify-between pt-6 border-t">
+        <button
+          onClick={clearFilters}
+          className="px-4 py-2 bg-gray-100 rounded-lg"
+        >
+          Limpar filtros
+        </button>
+
+        <button
+          onClick={() => onApply(localFilters)}
+          className="px-6 py-2 bg-indigo-600 text-white rounded-lg"
+        >
+          Aplicar filtros
+        </button>
+      </div>
+    </div>
   );
 };
 
