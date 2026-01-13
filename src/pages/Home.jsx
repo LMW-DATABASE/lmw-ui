@@ -10,12 +10,10 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Estados para controlar a paginação no frontend
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
   useEffect(() => {
-    // Busca na API é disparada apenas quando a 'query' muda
     const fetchMolecules = async () => {
       setLoading(true);
       setError(null);
@@ -23,7 +21,7 @@ const Home = () => {
         const response = await api.get('/api/molecules/', {
           params: { search: query }
         });
-        setAllMolecules(response.data); // A API agora retorna um array simples
+        setAllMolecules(response.data); 
       } catch (err) {
         console.error("Erro ao buscar moléculas:", err);
         setError('Não foi possível carregar os dados. Tente novamente mais tarde.');
@@ -32,15 +30,13 @@ const Home = () => {
       }
     };
 
-    // Só busca se o usuário realmente pesquisou algo
     if (query) {
       fetchMolecules();
     } else {
-      setAllMolecules([]); // Limpa os resultados se a busca estiver vazia
+      setAllMolecules([]); 
     }
   }, [query]);
 
-  // Lógica para "fatiar" os resultados e mostrar apenas os da página atual
   const currentMolecules = useMemo(() => {
     const firstItemIndex = (currentPage - 1) * itemsPerPage;
     const lastItemIndex = firstItemIndex + itemsPerPage;
@@ -51,7 +47,7 @@ const Home = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setCurrentPage(1); // Reseta para a página 1 a cada nova busca
+    setCurrentPage(1); 
     setQuery(searchTerm);
   };
 
