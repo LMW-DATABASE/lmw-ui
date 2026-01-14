@@ -8,6 +8,7 @@ import ProtectedRoute from './components/Auth/ProtectedRoutes.jsx';
 import { Home, Login, Dashboard, SobrePage } from './pages';
 import CadastroUsuarioModal from './components/Auth/CadastroUsuarioModal';
 import ListagemMoleculas from '@/pages/ListagemMoleculas.jsx';
+import MoleculeDetailsPage from '@/pages/MoleculeDetailsPage.jsx';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/sobre" element={<SobrePage />} />
+          <Route path="/molecules/:id" element={<MoleculeDetailsPage />} />
 
           {/* --- Rotas Protegidas --- */}
           <Route element={<ProtectedRoute />}>

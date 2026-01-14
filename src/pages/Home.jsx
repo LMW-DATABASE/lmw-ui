@@ -22,7 +22,6 @@ const Home = () => {
   });
 
   const [showFiltersModal, setShowFiltersModal] = useState(false);
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -34,7 +33,7 @@ const Home = () => {
         const response = await api.get('/api/molecules/', {
           params: { search: query },
         });
-        setAllMolecules(response.data);
+        setAllMolecules(response.data); 
       } catch (err) {
         console.error(err);
         setError('Não foi possível carregar os dados.');
@@ -43,12 +42,17 @@ const Home = () => {
       }
     };
 
-    if (query) fetchMolecules();
-    else setAllMolecules([]);
+    if (query) {
+      fetchMolecules();
+    } else {
+      setAllMolecules([]); 
+    }
   }, [query]);
 
+  // Lógica de filtragem local (Frontend) integrada
   const filteredMolecules = useMemo(() => {
     return allMolecules.filter((mol) => {
+      // Filtro por Database
       if (
         filters.database.length &&
         !filters.database.some((db) =>
@@ -56,6 +60,7 @@ const Home = () => {
         )
       ) return false;
 
+      // Filtro por Origem
       if (
         filters.origem.length &&
         !filters.origem.some((o) =>
@@ -63,6 +68,7 @@ const Home = () => {
         )
       ) return false;
 
+      // Filtro por Nome da Planta
       if (
         filters.nome_planta.length &&
         !filters.nome_planta.some((p) =>
@@ -70,6 +76,7 @@ const Home = () => {
         )
       ) return false;
 
+      // Filtro por Referência
       if (
         filters.referencia.length &&
         !filters.referencia.some((r) =>
@@ -77,6 +84,7 @@ const Home = () => {
         )
       ) return false;
 
+      // Filtro por Atividade
       const atividadesValidas = filters.atividade.filter((a) => a.trim() !== '');
       if (
         atividadesValidas.length &&
@@ -89,20 +97,23 @@ const Home = () => {
     });
   }, [allMolecules, filters]);
 
+  // Resetar página ao mudar filtros ou busca
   useEffect(() => {
     setCurrentPage(1);
   }, [filters, query]);
 
+  // Paginação baseada nos resultados filtrados
   const currentMolecules = useMemo(() => {
-    const first = (currentPage - 1) * itemsPerPage;
-    return filteredMolecules.slice(first, first + itemsPerPage);
-  }, [filteredMolecules, currentPage]);
+    const firstItemIndex = (currentPage - 1) * itemsPerPage;
+    const lastItemIndex = firstItemIndex + itemsPerPage;
+    return filteredMolecules.slice(firstItemIndex, lastItemIndex);
+  }, [filteredMolecules, currentPage, itemsPerPage]);
 
   const totalPages = Math.ceil(filteredMolecules.length / itemsPerPage);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setCurrentPage(1);
+    setCurrentPage(1); 
     setQuery(searchTerm);
   };
 
@@ -116,7 +127,7 @@ const Home = () => {
             Buscar Moléculas
           </h1>
 
-          {/* 🔍 BOTÃO FILTROS (ESQUERDA) */}
+          {/* Botão de Filtros */}
           <div className="flex justify-start mb-4">
             <button
               onClick={() => setShowFiltersModal(true)}
@@ -126,7 +137,6 @@ const Home = () => {
             </button>
           </div>
 
-          {/* INPUT DE BUSCA */}
           <form onSubmit={handleSearch} className="flex items-center gap-4">
             <input
               type="text"

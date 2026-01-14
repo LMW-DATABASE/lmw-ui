@@ -56,7 +56,7 @@ export const utils = {
     return Math.random().toString(36).substr(2, 9);
   },
 
-  // Debounce para otimizar buscas
+
   debounce: (func, wait) => {
     let timeout;
     return function executedFunction(...args) {
@@ -69,27 +69,24 @@ export const utils = {
     };
   },
 
-  // Verificar se é dispositivo móvel
   isMobile: () => {
     return window.innerWidth <= 768;
   },
 
-  // Copiar texto para clipboard
   copyToClipboard: async (text) => {
     try {
       await navigator.clipboard.writeText(text);
       return true;
+    // eslint-disable-next-line no-unused-vars
     } catch (err) {
       return false;
     }
   },
 
-  // Formatar data para exibição
   formatDate: (date, locale = 'pt-BR') => {
     return new Date(date).toLocaleDateString(locale);
   },
 
-  // Truncar texto
   truncateText: (text, maxLength = 100) => {
     if (!text) return '';
     return text.length > maxLength
