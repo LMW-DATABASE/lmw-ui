@@ -1,13 +1,13 @@
 import axios from 'axios';
+import { constants } from '../utils/helpers';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000', 
+  baseURL: constants.API_BASE_URL, 
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Interceptor para adicionar token de autenticação
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -21,14 +21,12 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor para tratar respostas e erros
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Token inválido ou expirado
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

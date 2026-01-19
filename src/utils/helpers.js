@@ -98,8 +98,10 @@ export const utils = {
 // =======================
 // Constantes do projeto
 // =======================
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+
 export const constants = {
-  API_BASE_URL: 'http://localhost:3001/api',
+  API_BASE_URL: `${BASE_URL}`,
   APP_NAME: 'EDNU-LMW',
   ORGANIZATION: 'UTFPR',
   TOKEN_KEY: 'token',
