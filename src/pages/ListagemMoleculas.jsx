@@ -45,6 +45,23 @@ const ListagemMoleculas = () => {
   useEffect(() => {
     fetchMolecules();
   }, []);
+  
+  const handleDelete = async (id) => {
+    if (!window.confirm("Deseja excluir esta molécula?"))
+      return;
+
+    try {
+      await api.delete(`/api/molecules/${id}/`);
+
+      setAllMolecules(prev =>
+        prev.filter(m => m.id !== id)
+      );
+
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao excluir molécula");
+    }
+  };
 
   // 🔹 FILTRO LOCAL
   const filteredMolecules = useMemo(() => {
@@ -179,8 +196,18 @@ const ListagemMoleculas = () => {
                     <td className="px-4 py-2">{mol.origem || '-'}</td>
                     <td className="px-4 py-2">{mol.activity || '-'}</td>
                     <td className="px-4 py-2 text-center space-x-2">
-                      <button className="text-indigo-600 hover:underline">Editar</button>
-                      <button className="text-red-600 hover:underline">Apagar</button>
+                      <button
+                        onClick={() => navigate(`/moleculas/edit/${mol.id}`)}
+                        className="text-indigo-600 hover:underline"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(mol.id)}
+                        className="text-red-600 hover:underline"
+                      >
+                        Apagar
+                      </button>
                     </td>
                   </tr>
                 ))}
