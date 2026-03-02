@@ -182,12 +182,20 @@ const ListagemMoleculas = () => {
                   <th className="px-4 py-3 text-left">Database</th>
                   <th className="px-4 py-3 text-left">Origem</th>
                   <th className="px-4 py-3 text-left">Atividade</th>
+                  <th className="px-4 py-3 text-center">Status</th>
                   <th className="px-4 py-3 text-center">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {currentMolecules.map((mol) => (
-                  <tr key={mol.id} className="border-t">
+                  <tr
+                    key={mol.id}
+                    className={`border-t ${
+                      mol.status_processamento === "erro"
+                        ? "bg-red-50"
+                        : ""
+                    }`}
+                  >
                     <td className="px-4 py-2">{mol.nome_molecula || '-'}</td>
                     <td className="px-4 py-2">{mol.smiles || '-'}</td>
                     <td className="px-4 py-2">{mol.referencia || '-'}</td>
@@ -195,6 +203,20 @@ const ListagemMoleculas = () => {
                     <td className="px-4 py-2">{mol.database || '-'}</td>
                     <td className="px-4 py-2">{mol.origem || '-'}</td>
                     <td className="px-4 py-2">{mol.activity || '-'}</td>
+                    <td className="px-4 py-2 text-center">
+                      {mol.status_processamento === "erro" ? (
+                        <span
+                          title={mol.erro_processamento || "Erro RDKit"}
+                          className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-semibold"
+                        >
+                          ❌ Erro RDKit
+                        </span>
+                      ) : (
+                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">
+                          ✅ OK
+                        </span>
+                      )}
+                    </td>
                     <td className="px-4 py-2 text-center space-x-2">
                       <button
                         onClick={() => navigate(`/moleculas/edit/${mol.id}`)}
