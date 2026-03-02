@@ -30,7 +30,7 @@ export default function EditMolecule() {
     try {
       await api.put(`/api/molecules/${id}/`, form);
       alert("Molécula atualizada!");
-      navigate("/molecules");
+      navigate("/moleculas");
     } catch (err) {
       console.error(err);
       alert("Erro ao atualizar");
