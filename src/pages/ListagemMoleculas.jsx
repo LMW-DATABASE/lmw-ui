@@ -14,12 +14,14 @@ const ListagemMoleculas = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const [showOnlyErrors, setShowOnlyErrors] = useState(false); // 🔔 NOVO
+
   const [filters, setFilters] = useState({
     database: [],
     origem: [],
     nome_planta: [],
     referencia: [],
-    atividade: [''], // 🔹 múltiplas atividades (OR)
+    atividade: [''],
   });
 
   const [showFiltersModal, setShowFiltersModal] = useState(false);
@@ -45,81 +47,90 @@ const ListagemMoleculas = () => {
   useEffect(() => {
     fetchMolecules();
   }, []);
-  
+
   const handleDelete = async (id) => {
     if (!window.confirm("Deseja excluir esta molécula?"))
       return;
 
     try {
       await api.delete(`/api/molecules/${id}/`);
-
-      setAllMolecules(prev =>
-        prev.filter(m => m.id !== id)
-      );
-
+      setAllMolecules(prev => prev.filter(m => m.id !== id));
     } catch (err) {
       console.error(err);
       alert("Erro ao excluir molécula");
     }
   };
 
-  // 🔹 FILTRO LOCAL
+  // 🔔 CONTADOR DE ERROS
+  const errorCount = useMemo(() => {
+    return allMolecules.filter(
+      (m) => m.status_processamento === "erro"
+    ).length;
+  }, [allMolecules]);
+
+  const hasErrors = errorCount > 0;
+
+  // 🔹 FILTRO LOCAL + FILTRO DE ERRO
   const filteredMolecules = useMemo(() => {
-    return allMolecules.filter((mol) => {
-      if (
-        searchTerm &&
-        !(
-          normalize(mol.nome_molecula).includes(normalize(searchTerm)) ||
-          normalize(mol.nome_planta).includes(normalize(searchTerm)) ||
-          normalize(mol.database).includes(normalize(searchTerm))
-        )
-      ) return false;
+    return allMolecules
+      .filter((mol) => {
 
-      if (
-        filters.database.length &&
-        !filters.database.some((db) =>
-          normalize(mol.database) === normalize(db)
-        )
-      ) return false;
+        if (showOnlyErrors && mol.status_processamento !== "erro")
+          return false;
 
-      if (
-        filters.origem.length &&
-        !filters.origem.some((o) =>
-          normalize(mol.origem).includes(normalize(o.value))
-        )
-      ) return false;
+        if (
+          searchTerm &&
+          !(
+            normalize(mol.nome_molecula).includes(normalize(searchTerm)) ||
+            normalize(mol.nome_planta).includes(normalize(searchTerm)) ||
+            normalize(mol.database).includes(normalize(searchTerm))
+          )
+        ) return false;
 
-      if (
-        filters.nome_planta.length &&
-        !filters.nome_planta.some((p) =>
-          normalize(mol.nome_planta).includes(normalize(p.value))
-        )
-      ) return false;
+        if (
+          filters.database.length &&
+          !filters.database.some((db) =>
+            normalize(mol.database) === normalize(db)
+          )
+        ) return false;
 
-      if (
-        filters.referencia.length &&
-        !filters.referencia.some((r) =>
-          normalize(mol.referencia).includes(normalize(r.value))
-        )
-      ) return false;
+        if (
+          filters.origem.length &&
+          !filters.origem.some((o) =>
+            normalize(mol.origem).includes(normalize(o.value))
+          )
+        ) return false;
 
-      // 🔹 ATIVIDADES — OR (apenas uma precisa bater)
-      const atividadesValidas = filters.atividade.filter((a) => a.trim() !== '');
+        if (
+          filters.nome_planta.length &&
+          !filters.nome_planta.some((p) =>
+            normalize(mol.nome_planta).includes(normalize(p.value))
+          )
+        ) return false;
 
-      if (
-        atividadesValidas.length &&
-        !atividadesValidas.some((a) =>
-          normalize(mol.activity).includes(normalize(a))
-        )
-      ) return false;
+        if (
+          filters.referencia.length &&
+          !filters.referencia.some((r) =>
+            normalize(mol.referencia).includes(normalize(r.value))
+          )
+        ) return false;
 
-      return true;
-    });
-  }, [allMolecules, filters, searchTerm]);
+        const atividadesValidas = filters.atividade.filter((a) => a.trim() !== '');
+
+        if (
+          atividadesValidas.length &&
+          !atividadesValidas.some((a) =>
+            normalize(mol.activity).includes(normalize(a))
+          )
+        ) return false;
+
+        return true;
+      });
+  }, [allMolecules, filters, searchTerm, showOnlyErrors]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters, searchTerm]);
+  }, [filters, searchTerm, showOnlyErrors]);
 
   const currentMolecules = useMemo(() => {
     const first = (currentPage - 1) * itemsPerPage;
@@ -132,10 +143,29 @@ const ListagemMoleculas = () => {
     <div className="bg-gray-50 min-h-[calc(100vh-160px)] p-6 sm:p-8">
       <div className="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow">
 
+        {/* HEADER */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
-            Listagem de Moléculas
-          </h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Listagem de Moléculas
+            </h1>
+
+            {/* 🔔 BOTÃO INTELIGENTE */}
+            {hasErrors && (
+              <button
+                onClick={() => setShowOnlyErrors(!showOnlyErrors)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200
+                  ${showOnlyErrors
+                    ? "bg-orange-500 text-white shadow-md"
+                    : "bg-orange-100 text-orange-600 hover:bg-orange-200"}`}
+                title={`${errorCount} molécula(s) com erro`}
+              >
+                ⚠
+                <span className="font-semibold">{errorCount}</span>
+              </button>
+            )}
+          </div>
+
           <button
             onClick={() => navigate('/dashboard')}
             className="px-4 py-2 bg-gray-200 rounded-lg"
@@ -203,20 +233,19 @@ const ListagemMoleculas = () => {
                     <td className="px-4 py-2">{mol.database || '-'}</td>
                     <td className="px-4 py-2">{mol.origem || '-'}</td>
                     <td className="px-4 py-2">{mol.activity || '-'}</td>
+
+                    {/* 🔴 APENAS ERRO */}
                     <td className="px-4 py-2 text-center">
-                      {mol.status_processamento === "erro" ? (
+                      {mol.status_processamento === "erro" && (
                         <span
                           title={mol.erro_processamento || "Erro RDKit"}
-                          className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-semibold"
+                          className="text-orange-600 text-lg"
                         >
-                          ❌ Erro RDKit
-                        </span>
-                      ) : (
-                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">
-                          ✅ OK
+                          ⚠
                         </span>
                       )}
                     </td>
+
                     <td className="px-4 py-2 text-center space-x-2">
                       <button
                         onClick={() => navigate(`/moleculas/edit/${mol.id}`)}
