@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await api.post('/users/login', {
+      const response = await api.post('/api/users/login/', {
         username: email,
         password: password
       });
