@@ -52,7 +52,7 @@ const SingleAddForm = ({ onClose }) => {
     setServerError('');
 
     try {
-      await api.post('/api/molecules/', formData);
+      await api.post('molecules/', formData);
 
       setSuccessMessage('Molécula cadastrada com sucesso!');
       setTimeout(() => {

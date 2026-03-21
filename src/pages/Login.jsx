@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth'; // 1. Importe o useAuth
+import { useAuth } from '@/hooks/useAuth'; 
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // 2. Pegue a função de login do contexto
+  const { login } = useAuth(); 
   const [formData, setFormData] = useState({
     email: '',
     senha: ''
@@ -25,19 +25,17 @@ const Login = () => {
     setLoading(true);
     setErrors({});
 
-    // 3. Chame a função de login do contexto
     const result = await login(formData.email, formData.senha);
 
     if (result.success) {
-      navigate('/dashboard'); // Redireciona em caso de sucesso
+      navigate('/dashboard'); 
     } else {
-      setErrors({ submit: result.error }); // Mostra o erro em caso de falha
+      setErrors({ submit: result.error });
     }
 
     setLoading(false);
   };
 
-  // O resto do seu JSX continua igual...
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full space-y-8">

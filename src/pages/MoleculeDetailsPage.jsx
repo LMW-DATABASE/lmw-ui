@@ -16,7 +16,7 @@ const MoleculeDetailsPage = () => {
     const fetchMoleculeData = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/api/molecules/${id}/`);
+        const response = await api.get(`molecules/${id}/`);
         setMolecule(response.data);
       } catch (err) {
         console.error("Erro ao carregar detalhes:", err);

@@ -28,7 +28,7 @@ const BulkUploadForm = ({ onClose }) => {
     formData.append('file', selectedFile);
 
     try {
-      const response = await api.post('/api/molecules/upload_excel/', formData, {
+      const response = await api.post('molecules/upload_excel/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -30,7 +30,7 @@ const Home = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get('/api/molecules/', {
+        const response = await api.get('molecules/', {
           params: { search: query },
         });
         setAllMolecules(response.data); 
