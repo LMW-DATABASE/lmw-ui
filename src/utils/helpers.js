@@ -98,7 +98,7 @@ export const utils = {
 // =======================
 // Constantes do projeto
 // =======================
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8001') + '/api';
 
 export const constants = {
   API_BASE_URL: `${BASE_URL}`,

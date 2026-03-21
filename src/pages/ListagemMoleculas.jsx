@@ -33,7 +33,7 @@ const ListagemMoleculas = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get('/api/molecules/');
+      const response = await api.get('molecules/');
       setAllMolecules(response.data);
       setCurrentPage(1);
     } catch (err) {

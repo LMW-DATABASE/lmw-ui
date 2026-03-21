@@ -19,7 +19,7 @@ const MoleculesFilters = ({ filters, onApply }) => {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        const res = await api.get('/api/molecules/');
+        const res = await api.get('molecules/');
         const data = res.data;
 
         const unique = (key) =>
