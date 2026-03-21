@@ -9,6 +9,7 @@ import { Home, Login, Dashboard, SobrePage } from './pages';
 import CadastroUsuarioModal from './components/Auth/CadastroUsuarioModal';
 import ListagemMoleculas from '@/pages/ListagemMoleculas.jsx';
 import MoleculeDetailsPage from '@/pages/MoleculeDetailsPage.jsx';
+import CommunityRequests from '@/pages/CommunityRequests';
 import EditMolecule from '@/pages/EditMolecule.jsx';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/sobre" element={<SobrePage />} />
           <Route path="/molecules/:id" element={<MoleculeDetailsPage />} />
+          <Route path="/community-requests" element={<CommunityRequests />} />
 
           {/* --- Rotas Protegidas --- */}
           <Route element={<ProtectedRoute />}>
