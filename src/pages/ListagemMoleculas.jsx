@@ -14,7 +14,7 @@ const ListagemMoleculas = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [showOnlyErrors, setShowOnlyErrors] = useState(false); // 🔔 NOVO
+  const [showOnlyErrors, setShowOnlyErrors] = useState(false);
 
   const [filters, setFilters] = useState({
     database: [],

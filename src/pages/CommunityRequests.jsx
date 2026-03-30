@@ -21,22 +21,14 @@ const CommunityRequests = () => {
         <div className="flex gap-4 mb-6">
           <button
             onClick={() => setMode("new")}
-            className={`px-4 py-2 rounded-lg ${
-              mode === "new"
-                ? "bg-indigo-600 text-white"
-                : "bg-gray-200"
-            }`}
+            className={`px-4 py-2 rounded-lg ${mode === "new" ? "bg-indigo-600 text-white" : "bg-gray-200"}`}
           >
             Nova Molécula
           </button>
 
           <button
             onClick={() => setMode("correction")}
-            className={`px-4 py-2 rounded-lg ${
-              mode === "correction"
-                ? "bg-indigo-600 text-white"
-                : "bg-gray-200"
-            }`}
+            className={`px-4 py-2 rounded-lg ${mode === "correction" ? "bg-indigo-600 text-white" : "bg-gray-200"}`}
           >
             Corrigir Dados
           </button>

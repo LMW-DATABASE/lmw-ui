@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 
-export default function NewMoleculesRequestForm() {
+export default function NewMoleculeRequestForm() {
   const [form, setForm] = useState({
+    nome_editor: "",
+    email: "",
     nome_molecula: "",
     smiles: "",
     referencia: "",
     nome_planta: "",
     database: "",
     origem: "",
-    activity: ""
+    activity: "",
   });
 
   const [databases, setDatabases] = useState([]);
@@ -20,10 +22,10 @@ export default function NewMoleculesRequestForm() {
 
   const fetchDatabases = async () => {
     try {
-      const res = await api.get("/api/molecules/databases/");
+      const res = await api.get("/molecules/databases"); // ✔ sem barra
       setDatabases(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao buscar databases:", err);
     }
   };
 
@@ -31,14 +33,24 @@ export default function NewMoleculesRequestForm() {
     e.preventDefault();
 
     try {
-      await api.post("/api/community-requests/", {
-        tipo: "nova_molecula",
-        payload: form
+      await api.post("/molecules/requests/public/create/", {
+        tipo: "nova", // ✔ backend aceita apenas "nova"
+        nome_editor: form.nome_editor,
+        email: form.email,
+        payload: {
+          nome_molecula: form.nome_molecula,
+          smiles: form.smiles,
+          referencia: form.referencia,
+          nome_planta: form.nome_planta,
+          database: form.database,
+          origem: form.origem,
+          activity: form.activity,
+        },
       });
 
       alert("Solicitação enviada!");
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao enviar:", err.response?.data || err);
       alert("Erro ao enviar");
     }
   };
@@ -47,11 +59,26 @@ export default function NewMoleculesRequestForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
 
       <input
+        placeholder="Seu nome"
+        value={form.nome_editor}
+        onChange={(e) => setForm({ ...form, nome_editor: e.target.value })}
+        className="w-full border p-2 rounded"
+        required
+      />
+
+      <input
+        placeholder="Seu email"
+        value={form.email}
+        type="email"
+        onChange={(e) => setForm({ ...form, email: e.target.value })}
+        className="w-full border p-2 rounded"
+        required
+      />
+
+      <input
         placeholder="Nome da molécula"
         value={form.nome_molecula}
-        onChange={(e) =>
-          setForm({ ...form, nome_molecula: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, nome_molecula: e.target.value })}
         className="w-full border p-2 rounded"
         required
       />
@@ -59,9 +86,7 @@ export default function NewMoleculesRequestForm() {
       <input
         placeholder="SMILES"
         value={form.smiles}
-        onChange={(e) =>
-          setForm({ ...form, smiles: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, smiles: e.target.value })}
         className="w-full border p-2 rounded"
         required
       />
@@ -69,50 +94,42 @@ export default function NewMoleculesRequestForm() {
       <input
         placeholder="Referência"
         value={form.referencia}
-        onChange={(e) =>
-          setForm({ ...form, referencia: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, referencia: e.target.value })}
         className="w-full border p-2 rounded"
       />
 
       <input
         placeholder="Nome da planta"
         value={form.nome_planta}
-        onChange={(e) =>
-          setForm({ ...form, nome_planta: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, nome_planta: e.target.value })}
         className="w-full border p-2 rounded"
       />
 
-      {/* 📊 Database */}
+      {/* DATABASE */}
       <select
         value={form.database}
-        onChange={(e) =>
-          setForm({ ...form, database: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, database: e.target.value })}
         className="w-full border p-2 rounded"
       >
         <option value="">Selecione um database</option>
-        {databases.map((db, i) => (
-          <option key={i} value={db}>{db}</option>
+        {databases.map((db) => (
+          <option key={db.id} value={db.id}>
+            {db.nome}
+          </option>
         ))}
       </select>
 
       <input
         placeholder="Origem"
         value={form.origem}
-        onChange={(e) =>
-          setForm({ ...form, origem: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, origem: e.target.value })}
         className="w-full border p-2 rounded"
       />
 
       <textarea
         placeholder="Atividade"
         value={form.activity}
-        onChange={(e) =>
-          setForm({ ...form, activity: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, activity: e.target.value })}
         className="w-full border p-2 rounded"
       />
 
