@@ -61,7 +61,7 @@ const ListagemMoleculas = () => {
     }
   };
 
-  // 🔔 CONTADOR DE ERROS
+  // CONTADOR DE ERROS
   const errorCount = useMemo(() => {
     return allMolecules.filter(
       (m) => m.status_processamento === "erro"
@@ -70,7 +70,7 @@ const ListagemMoleculas = () => {
 
   const hasErrors = errorCount > 0;
 
-  // 🔹 FILTRO LOCAL + FILTRO DE ERRO
+  // FILTRO LOCAL + FILTRO DE ERRO
   const filteredMolecules = useMemo(() => {
     return allMolecules
       .filter((mol) => {
@@ -150,7 +150,7 @@ const ListagemMoleculas = () => {
               Listagem de Moléculas
             </h1>
 
-            {/* 🔔 BOTÃO INTELIGENTE */}
+            {/* BOTÃO INTELIGENTE */}
             {hasErrors && (
               <button
                 onClick={() => setShowOnlyErrors(!showOnlyErrors)}
@@ -234,7 +234,7 @@ const ListagemMoleculas = () => {
                     <td className="px-4 py-2">{mol.origem || '-'}</td>
                     <td className="px-4 py-2">{mol.activity || '-'}</td>
 
-                    {/* 🔴 APENAS ERRO */}
+                    {/* APENAS ERRO */}
                     <td className="px-4 py-2 text-center">
                       {mol.status_processamento === "erro" && (
                         <span
