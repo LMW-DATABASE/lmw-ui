@@ -1,6 +1,76 @@
 import React, { useState } from 'react';
 import api from '../../services/api';
 
+const FIELD_LABELS = {
+  nome_molecula: 'Nome da molécula',
+  smiles: 'SMILES',
+  referencia: 'Referência',
+  nome_planta: 'Nome da planta',
+  database: 'Base de dados',
+  origem: 'Origem',
+  activity: 'Atividade',
+  estrutura_svg: 'Estrutura SVG',
+  status_processamento: 'Estado de processamento',
+  erro_processamento: 'Erro de processamento',
+  non_field_errors: 'Geral',
+};
+
+function flattenDrfMessages(value) {
+  if (value == null) return [];
+  if (typeof value === 'string') return [value];
+  if (Array.isArray(value)) return value.flatMap((v) => flattenDrfMessages(v));
+  if (typeof value === 'object') return Object.values(value).flatMap((v) => flattenDrfMessages(v));
+  return [String(value)];
+}
+
+function formatFieldLines(erros) {
+  if (!erros || typeof erros !== 'object' || Array.isArray(erros)) return [];
+  const lines = [];
+  for (const [field, raw] of Object.entries(erros)) {
+    const label = FIELD_LABELS[field] || field;
+    const msgs = flattenDrfMessages(raw);
+    for (const m of msgs) {
+      lines.push({ label, message: m });
+    }
+  }
+  return lines;
+}
+
+function parseUploadError(err) {
+  const data = err.response?.data;
+  if (!data || typeof data !== 'object') {
+    return { message: 'Ocorreu um erro de conexão. Tente novamente.', details: [], missingColumns: [] };
+  }
+
+  let message = typeof data.error === 'string' ? data.error : '';
+
+  if (!message && data.status === 'falha' && Array.isArray(data.errors) && data.errors.length > 0) {
+    message = 'Foram encontrados problemas nas linhas indicadas abaixo.';
+  }
+
+  const missing = Array.isArray(data.missing_columns) ? data.missing_columns : [];
+  if (!message && missing.length > 0) {
+    message = 'O ficheiro Excel não contém todas as colunas obrigatórias.';
+  }
+
+  if (!message) {
+    message = 'Ocorreu um erro ao processar o ficheiro.';
+  }
+
+  const missingColumns = missing.map((c) => FIELD_LABELS[c] || c);
+
+  const details = (Array.isArray(data.errors) ? data.errors : []).map((item) => {
+    const row = item.linha_excel ?? item.row;
+    const fieldErrors = item.erros ?? item.errors;
+    return {
+      row,
+      lines: formatFieldLines(fieldErrors),
+    };
+  });
+
+  return { message, details, missingColumns };
+}
+
 const BulkUploadForm = ({ onClose }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -16,7 +86,7 @@ const BulkUploadForm = ({ onClose }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!selectedFile) {
-      setError({ message: 'Por favor, selecione um arquivo para enviar.' });
+      setError({ message: 'Por favor, selecione um arquivo para enviar.', details: [], missingColumns: [] });
       return;
     }
 
@@ -28,7 +98,7 @@ const BulkUploadForm = ({ onClose }) => {
     formData.append('file', selectedFile);
 
     try {
-      const response = await api.post('/api/molecules/upload_excel/', formData, {
+      const response = await api.post('molecules/upload_excel/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -38,17 +108,9 @@ const BulkUploadForm = ({ onClose }) => {
       setTimeout(() => {
         onClose();
       }, 3000);
-
     } catch (err) {
-      console.error('Erro no upload em massa:', err);
-      if (err.response?.data) {
-        setError({
-          message: err.response.data.error || 'Ocorreram erros de validação no seu arquivo.',
-          details: err.response.data.errors || [],
-        });
-      } else {
-        setError({ message: 'Ocorreu um erro de conexão. Tente novamente.' });
-      }
+      console.error('Erro no upload em massa:', err.response?.data ?? err.message);
+      setError(parseUploadError(err));
     } finally {
       setLoading(false);
     }
@@ -61,11 +123,29 @@ const BulkUploadForm = ({ onClose }) => {
       {error && (
         <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
           <p className="font-bold">{error.message}</p>
-          {error.details && error.details.length > 0 && (
+          {error.missingColumns && error.missingColumns.length > 0 && (
             <ul className="mt-2 list-disc list-inside text-xs">
+              {error.missingColumns.map((label) => (
+                <li key={label}>{label}</li>
+              ))}
+            </ul>
+          )}
+          {error.details && error.details.length > 0 && (
+            <ul className="mt-2 list-disc list-inside text-xs space-y-2">
               {error.details.map((detail, index) => (
                 <li key={index}>
-                  Linha {detail.row}: {Object.values(detail.errors).join(', ')}
+                  <span className="font-semibold">Linha {detail.row ?? '?'}:</span>
+                  {detail.lines && detail.lines.length > 0 ? (
+                    <ul className="mt-1 ml-4 list-disc space-y-0.5">
+                      {detail.lines.map((line, i) => (
+                        <li key={i}>
+                          <span className="font-medium">{line.label}:</span> {line.message}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <span className="ml-1">Erro de validação sem detalhe.</span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -101,10 +181,13 @@ const BulkUploadForm = ({ onClose }) => {
           </div>
 
           <div className="text-sm text-gray-600">
-            <p>As colunas do arquivo devem seguir o padrão: <br />
+            <p>
+              As colunas do arquivo devem seguir o padrão: <br />
               <code className="text-xs bg-gray-100 p-1 rounded">nome_molecula, smiles, referencia, nome_planta, database, origem, activity</code>
             </p>
-            <a href="/path/to/template.xlsx" download className="text-indigo-600 hover:underline mt-1 inline-block">Baixar template de exemplo</a>
+            <a href="/path/to/template.xlsx" download className="text-indigo-600 hover:underline mt-1 inline-block">
+              Baixar template de exemplo
+            </a>
           </div>
         </div>
 

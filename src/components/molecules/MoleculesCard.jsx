@@ -25,7 +25,7 @@ const MoleculeCard = ({ molecule }) => {
           
           <div className="mt-2 space-y-1">
             <p className="text-xs font-medium text-indigo-600 uppercase tracking-wider">
-              {molecule.nome_planta || 'Planta não informada'}
+              {molecule.database || 'Database não informado'}
             </p>
             <p className="text-sm text-gray-500 truncate" title={molecule.smiles}>
               <span className="font-semibold text-gray-700">SMILES:</span> {molecule.smiles}

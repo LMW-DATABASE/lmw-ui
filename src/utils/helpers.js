@@ -98,7 +98,7 @@ export const utils = {
 // =======================
 // Constantes do projeto
 // =======================
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8001') + '/api';
 
 export const constants = {
   API_BASE_URL: `${BASE_URL}`,
@@ -156,6 +156,36 @@ export const errorHandlers = {
       return errorHandlers.apiError(error);
     }
   }
+};
+
+const MOLECULE_TEXT_PLACEHOLDER_FIELDS = new Set([
+  'referencia',
+  'nome_planta',
+  'database',
+  'origem',
+  'activity',
+]);
+
+const normalizeFormTextValue = (value) => {
+  if (value == null) return '';
+  return typeof value === 'string' ? value.trim() : value;
+};
+
+export const normalizeMoleculeFormData = (data) => {
+  const normalized = {};
+
+  Object.entries(data).forEach(([key, value]) => {
+    const trimmedValue = normalizeFormTextValue(value);
+
+    if (MOLECULE_TEXT_PLACEHOLDER_FIELDS.has(key)) {
+      normalized[key] = trimmedValue ? trimmedValue : 'Não Informado';
+      return;
+    }
+
+    normalized[key] = trimmedValue;
+  });
+
+  return normalized;
 };
 
 // =======================

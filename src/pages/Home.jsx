@@ -3,8 +3,7 @@ import api from '../services/api';
 import MoleculeCard from '../components/molecules/MoleculesCard.jsx';
 import Pagination from '../components/common/Pagination';
 import MoleculesFilters from '../components/molecules/MoleculesFilters';
-
-const normalize = (v) => v?.toString().toLowerCase().trim() || '';
+import { filterMolecules } from '../utils/helpers';
 
 const Home = () => {
   const [allMolecules, setAllMolecules] = useState([]);
@@ -30,8 +29,8 @@ const Home = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get('/api/molecules/', {
-          params: { search: query },
+        const response = await api.get('molecules/', {
+          params: query ? { search: query } : {},
         });
         setAllMolecules(response.data); 
       } catch (err) {
@@ -42,60 +41,13 @@ const Home = () => {
       }
     };
 
-    if (query) {
-      fetchMolecules();
-    } else {
-      setAllMolecules([]); 
-    }
+    fetchMolecules();
   }, [query]);
 
   // Lógica de filtragem local (Frontend) integrada
   const filteredMolecules = useMemo(() => {
-    return allMolecules.filter((mol) => {
-      // Filtro por Database
-      if (
-        filters.database.length &&
-        !filters.database.some((db) =>
-          normalize(mol.database) === normalize(db)
-        )
-      ) return false;
-
-      // Filtro por Origem
-      if (
-        filters.origem.length &&
-        !filters.origem.some((o) =>
-          normalize(mol.origem).includes(normalize(o.value))
-        )
-      ) return false;
-
-      // Filtro por Nome da Planta
-      if (
-        filters.nome_planta.length &&
-        !filters.nome_planta.some((p) =>
-          normalize(mol.nome_planta).includes(normalize(p.value))
-        )
-      ) return false;
-
-      // Filtro por Referência
-      if (
-        filters.referencia.length &&
-        !filters.referencia.some((r) =>
-          normalize(mol.referencia).includes(normalize(r.value))
-        )
-      ) return false;
-
-      // Filtro por Atividade
-      const atividadesValidas = filters.atividade.filter((a) => a.trim() !== '');
-      if (
-        atividadesValidas.length &&
-        !atividadesValidas.some((a) =>
-          normalize(mol.activity).includes(normalize(a))
-        )
-      ) return false;
-
-      return true;
-    });
-  }, [allMolecules, filters]);
+    return filterMolecules(allMolecules, filters, query);
+  }, [allMolecules, filters, query]);
 
   // Resetar página ao mudar filtros ou busca
   useEffect(() => {
@@ -161,7 +113,9 @@ const Home = () => {
 
         {!loading && !error && currentMolecules.length === 0 && (
           <div className="text-center py-10">
-            {query ? 'Nenhuma molécula encontrada.' : 'Realize uma busca.'}
+            {query || filters.database.length || filters.origem.length || filters.nome_planta.length || filters.referencia.length || filters.atividade.some((a) => a.trim() !== '')
+              ? 'Nenhuma molécula encontrada.'
+              : 'Nenhuma molécula disponível.'}
           </div>
         )}
 
