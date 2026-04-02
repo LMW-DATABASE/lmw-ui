@@ -15,11 +15,11 @@ export default function EditMolecule() {
   useEffect(() => {
     const fetchMolecule = async () => {
       try {
-        const res = await api.get(`/api/molecules/${id}/`);
+        const res = await api.get(`molecules/${id}/`);
         setForm(res.data);
       } catch (err) {
         console.error(err);
-        setError("Erro ao carregar molécula.");
+        setError(err.response?.data?.detail || err.response?.data?.error || "Erro ao carregar molécula.");
       } finally {
         setLoading(false);
       }
@@ -41,13 +41,17 @@ export default function EditMolecule() {
     setError(null);
 
     try {
-      await api.put(`/api/molecules/${id}/`, normalizeMoleculeFormData(form));
+      await api.put(`molecules/${id}/`, normalizeMoleculeFormData(form));
       alert("Molécula atualizada com sucesso!");
       navigate("/moleculas");
     } catch (err) {
       console.error(err);
       if (err.response?.data?.detail) {
         setError(err.response.data.detail);
+      } else if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else if (err.response?.data && typeof err.response.data === "object") {
+        setError("Erro de validação ao atualizar molécula.");
       } else {
         setError("Erro ao atualizar molécula.");
       }
