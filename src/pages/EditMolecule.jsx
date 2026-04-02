@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { normalizeMoleculeFormData } from "../utils/helpers";
 
 export default function EditMolecule() {
   const { id } = useParams();
@@ -40,7 +41,7 @@ export default function EditMolecule() {
     setError(null);
 
     try {
-      await api.put(`/api/molecules/${id}/`, form);
+      await api.put(`/api/molecules/${id}/`, normalizeMoleculeFormData(form));
       alert("Molécula atualizada com sucesso!");
       navigate("/moleculas");
     } catch (err) {
