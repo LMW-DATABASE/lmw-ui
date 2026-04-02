@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Pagination from '../components/common/Pagination';
 import MoleculesFilters from '../components/molecules/MoleculesFilters';
+import MoleculeDetails from '../components/molecules/MoleculeDetails';
 
 const normalize = (v) => v?.toString().toLowerCase().trim() || '';
 
@@ -25,6 +26,9 @@ const ListagemMoleculas = () => {
   });
 
   const [showFiltersModal, setShowFiltersModal] = useState(false);
+  const [selectedMolecule, setSelectedMolecule] = useState(null);
+  const [detailsMolecule, setDetailsMolecule] = useState(null);
+  const optionsMenuRef = useRef(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
@@ -48,12 +52,25 @@ const ListagemMoleculas = () => {
     fetchMolecules();
   }, []);
 
+  useEffect(() => {
+    if (!selectedMolecule) return undefined;
+
+    const handleClickOutside = (event) => {
+      if (optionsMenuRef.current && !optionsMenuRef.current.contains(event.target)) {
+        setSelectedMolecule(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [selectedMolecule]);
+
   const handleDelete = async (id) => {
     if (!window.confirm("Deseja excluir esta molécula?"))
       return;
 
     try {
-      await api.delete(`/api/molecules/${id}/`);
+      await api.delete(`molecules/${id}/`);
       setAllMolecules(prev => prev.filter(m => m.id !== id));
     } catch (err) {
       console.error(err);
@@ -138,6 +155,18 @@ const ListagemMoleculas = () => {
   }, [filteredMolecules, currentPage]);
 
   const totalPages = Math.ceil(filteredMolecules.length / itemsPerPage);
+  const closeOptionsModal = () => setSelectedMolecule(null);
+  const closeDetailsModal = () => setDetailsMolecule(null);
+
+  const openDetailsPreview = () => {
+    if (!selectedMolecule) return;
+    setDetailsMolecule(selectedMolecule);
+    setSelectedMolecule(null);
+  };
+
+  const toggleOptionsMenu = (molecule) => {
+    setSelectedMolecule((current) => (current?.id === molecule.id ? null : molecule));
+  };
 
   return (
     <div className="bg-gray-50 min-h-[calc(100vh-160px)] p-6 sm:p-8">
@@ -206,14 +235,10 @@ const ListagemMoleculas = () => {
               <thead className="bg-gray-100">
                 <tr>
                   <th className="px-4 py-3 text-left">Nome</th>
-                  <th className="px-4 py-3 text-left">SMILES</th>
-                  <th className="px-4 py-3 text-left">Referência</th>
-                  <th className="px-4 py-3 text-left">Planta</th>
                   <th className="px-4 py-3 text-left">Database</th>
-                  <th className="px-4 py-3 text-left">Origem</th>
-                  <th className="px-4 py-3 text-left">Atividade</th>
+                  <th className="px-4 py-3 text-left">SMILES</th>
                   <th className="px-4 py-3 text-center">Status</th>
-                  <th className="px-4 py-3 text-center">Ações</th>
+                  <th className="px-4 py-3 text-center">Opções</th>
                 </tr>
               </thead>
               <tbody>
@@ -227,12 +252,16 @@ const ListagemMoleculas = () => {
                     }`}
                   >
                     <td className="px-4 py-2">{mol.nome_molecula || '-'}</td>
-                    <td className="px-4 py-2">{mol.smiles || '-'}</td>
-                    <td className="px-4 py-2">{mol.referencia || '-'}</td>
-                    <td className="px-4 py-2">{mol.nome_planta || '-'}</td>
-                    <td className="px-4 py-2">{mol.database || '-'}</td>
-                    <td className="px-4 py-2">{mol.origem || '-'}</td>
-                    <td className="px-4 py-2">{mol.activity || '-'}</td>
+                    <td className="px-4 py-2">
+                      <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
+                        {mol.database || '-'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 max-w-sm">
+                      <div className="truncate text-sm text-gray-700" title={mol.smiles || '-'}>
+                        {mol.smiles || '-'}
+                      </div>
+                    </td>
 
                     {/* 🔴 APENAS ERRO */}
                     <td className="px-4 py-2 text-center">
@@ -246,19 +275,46 @@ const ListagemMoleculas = () => {
                       )}
                     </td>
 
-                    <td className="px-4 py-2 text-center space-x-2">
+                    <td className="px-4 py-2 text-center relative">
                       <button
-                        onClick={() => navigate(`/moleculas/edit/${mol.id}`)}
-                        className="text-indigo-600 hover:underline"
+                        onClick={() => toggleOptionsMenu(mol)}
+                        className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                        title="Abrir opções"
                       >
-                        Editar
+                        ⋯
                       </button>
-                      <button
-                        onClick={() => handleDelete(mol.id)}
-                        className="text-red-600 hover:underline"
-                      >
-                        Apagar
-                      </button>
+
+                      {selectedMolecule?.id === mol.id && (
+                        <div
+                          ref={optionsMenuRef}
+                          className="absolute right-4 top-full z-20 mt-2 w-52 rounded-xl border border-gray-200 bg-white p-2 text-left shadow-lg"
+                        >
+                          <button
+                            onClick={openDetailsPreview}
+                            className="block w-full rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                          >
+                            Ver detalhes
+                          </button>
+                          <button
+                            onClick={() => {
+                              closeOptionsModal();
+                              navigate(`/moleculas/edit/${mol.id}`);
+                            }}
+                            className="mt-1 block w-full rounded-lg px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => {
+                              closeOptionsModal();
+                              handleDelete(mol.id);
+                            }}
+                            className="mt-1 block w-full rounded-lg px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50"
+                          >
+                            Apagar
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -277,6 +333,37 @@ const ListagemMoleculas = () => {
           </div>
         )}
       </div>
+
+      {detailsMolecule && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 overflow-y-auto"
+          onClick={closeDetailsModal}
+        >
+          <div className="min-h-full flex items-center justify-center p-4 py-8">
+            <div
+              className="w-full max-w-6xl rounded-2xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Detalhes da molécula</h2>
+                  <p className="mt-1 text-sm text-gray-600">
+                    Pré-visualização avançada sem sair da listagem.
+                  </p>
+                </div>
+                <button
+                  onClick={closeDetailsModal}
+                  className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                >
+                  Fechar
+                </button>
+              </div>
+
+              <MoleculeDetails molecule={detailsMolecule} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {showFiltersModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">

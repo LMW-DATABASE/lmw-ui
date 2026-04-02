@@ -158,6 +158,36 @@ export const errorHandlers = {
   }
 };
 
+const MOLECULE_TEXT_PLACEHOLDER_FIELDS = new Set([
+  'referencia',
+  'nome_planta',
+  'database',
+  'origem',
+  'activity',
+]);
+
+const normalizeFormTextValue = (value) => {
+  if (value == null) return '';
+  return typeof value === 'string' ? value.trim() : value;
+};
+
+export const normalizeMoleculeFormData = (data) => {
+  const normalized = {};
+
+  Object.entries(data).forEach(([key, value]) => {
+    const trimmedValue = normalizeFormTextValue(value);
+
+    if (MOLECULE_TEXT_PLACEHOLDER_FIELDS.has(key)) {
+      normalized[key] = trimmedValue ? trimmedValue : 'Não Informado';
+      return;
+    }
+
+    normalized[key] = trimmedValue;
+  });
+
+  return normalized;
+};
+
 // =======================
 // Filtro reutilizável de moléculas
 // =======================

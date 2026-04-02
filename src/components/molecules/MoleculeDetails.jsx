@@ -42,7 +42,6 @@ const MoleculeDetails = ({ molecule }) => {
             <DataRow label="SMILES" value={molecule.smiles} />
             <DataRow label="InChI" value={molecule.inchi} />
             <DataRow label="InChI Key" value={molecule.inchikey} />
-            <DataRow label="Scaffold (Murcko)" value={molecule.murcko_scaffold} />
           </div>
         </div>
       </div>
