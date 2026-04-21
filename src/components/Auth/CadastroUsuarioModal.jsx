@@ -49,7 +49,7 @@ const CadastroUsuarioModal = ({ isOpen, onClose }) => {
     setErrors({});
 
     try {
-      await api.post('/users/register', {
+      await api.post('/users/register/', {
         username: formData.email,
         email: formData.email,
         password: formData.senha,
