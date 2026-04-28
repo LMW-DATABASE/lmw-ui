@@ -11,7 +11,7 @@ import ListagemMoleculas from '@/pages/ListagemMoleculas.jsx';
 import MoleculeDetailsPage from '@/pages/MoleculeDetailsPage.jsx';
 import CommunityRequests from '@/pages/CommunityRequests';
 import EditMolecule from '@/pages/EditMolecule.jsx';
-import AdminMoleculeRequests from '@/pages/AdminMoleculeRequests.jsx'; // <-- NOVA IMPORTAÇÃO
+import AdminMoleculeRequests from '@/pages/AdminMoleculeRequests.jsx';
 
 function App() {
   return (

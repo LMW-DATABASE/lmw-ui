@@ -11,7 +11,7 @@ const AdminMoleculeRequests = () => {
   const loadRequests = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/molecules/requests/admin/list/");
+      const res = await fetch("http://localhost:8001/api/molecules/requests/admin/list/");
       const data = await res.json();
       setRequests(data.results || data);
     } catch (err) {

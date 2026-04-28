@@ -22,7 +22,7 @@ export default function NewMoleculeRequestForm() {
 
   const fetchDatabases = async () => {
     try {
-      const res = await api.get("/molecules/databases"); // ✔ sem barra
+      const res = await api.get("/molecules/databases/");
       setDatabases(res.data);
     } catch (err) {
       console.error("Erro ao buscar databases:", err);
@@ -34,7 +34,7 @@ export default function NewMoleculeRequestForm() {
 
     try {
       await api.post("/molecules/requests/public/create/", {
-        tipo: "nova", // ✔ backend aceita apenas "nova"
+        tipo: "nova",
         nome_editor: form.nome_editor,
         email: form.email,
         payload: {
@@ -42,16 +42,28 @@ export default function NewMoleculeRequestForm() {
           smiles: form.smiles,
           referencia: form.referencia,
           nome_planta: form.nome_planta,
-          database: form.database,
-          origem: form.origem,
-          activity: form.activity,
+          ...(form.database && { database: form.database }),
+          ...(form.origem && { origem: form.origem }),
+          ...(form.activity && { activity: form.activity }),
         },
       });
 
       alert("Solicitação enviada!");
+      setForm({
+        nome_editor: "",
+        email: "",
+        nome_molecula: "",
+        smiles: "",
+        referencia: "",
+        nome_planta: "",
+        database: "",
+        origem: "",
+        activity: "",
+      });
     } catch (err) {
-      console.error("Erro ao enviar:", err.response?.data || err);
-      alert("Erro ao enviar");
+      console.log("STATUS:", err.response?.status);
+      console.log("DATA:", err.response?.data);
+      alert(JSON.stringify(err.response?.data));
     }
   };
 
@@ -113,8 +125,8 @@ export default function NewMoleculeRequestForm() {
       >
         <option value="">Selecione um database</option>
         {databases.map((db) => (
-          <option key={db.id} value={db.id}>
-            {db.nome}
+          <option key={db} value={db}>
+            {db}
           </option>
         ))}
       </select>
