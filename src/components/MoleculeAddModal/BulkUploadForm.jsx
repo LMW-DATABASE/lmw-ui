@@ -8,6 +8,7 @@ const FIELD_LABELS = {
   nome_planta: 'Nome da planta',
   database: 'Base de dados',
   origem: 'Origem',
+  geolocalizacao: 'Geolocalização',
   activity: 'Atividade',
   estrutura_svg: 'Estrutura SVG',
   status_processamento: 'Estado de processamento',
@@ -183,7 +184,10 @@ const BulkUploadForm = ({ onClose }) => {
           <div className="text-sm text-gray-600">
             <p>
               As colunas do arquivo devem seguir o padrão: <br />
-              <code className="text-xs bg-gray-100 p-1 rounded">nome_molecula, smiles, referencia, nome_planta, database, origem, activity</code>
+              <code className="text-xs bg-gray-100 p-1 rounded">nome_molecula, smiles, referencia, nome_planta, database, origem, geolocalizacao, activity</code>
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Colunas opcionais: origem, geolocalizacao, activity
             </p>
             <a href="/path/to/template.xlsx" download className="text-indigo-600 hover:underline mt-1 inline-block">
               Baixar template de exemplo

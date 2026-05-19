@@ -161,6 +161,18 @@ export default function EditMolecule() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Geolocalização
+                </label>
+                <input
+                  name="geolocalizacao"
+                  value={form.geolocalizacao || ""}
+                  onChange={handleChange}
+                  className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
             </div>
           </div>
 

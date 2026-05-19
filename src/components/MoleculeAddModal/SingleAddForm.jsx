@@ -11,6 +11,7 @@ const SingleAddForm = ({ onClose }) => {
     nome_planta: '',
     database: '',
     origem: '',
+    geolocalizacao: '',
     activity: ''
   });
 
@@ -54,7 +55,7 @@ const SingleAddForm = ({ onClose }) => {
 
       setSuccessMessage('Molécula cadastrada com sucesso!');
       setTimeout(() => {
-        setFormData({ nome_molecula: '', smiles: '', referencia: '', nome_planta: '', database: '', origem: '', activity: '' });
+        setFormData({ nome_molecula: '', smiles: '', referencia: '', nome_planta: '', database: '', origem: '', geolocalizacao: '', activity: '' });
         onClose();
       }, 2000);
 
@@ -110,6 +111,11 @@ const SingleAddForm = ({ onClose }) => {
         <div className="md:col-span-2">
           <label htmlFor="origem" className="block text-sm font-medium text-gray-700">Origem</label>
           <input type="text" name="origem" id="origem" value={formData.origem} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+        </div>
+
+        <div>
+          <label htmlFor="geolocalizacao" className="block text-sm font-medium text-gray-700">Geolocalização</label>
+          <input type="text" name="geolocalizacao" id="geolocalizacao" value={formData.geolocalizacao} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
         </div>
 
         <div className="md:col-span-2">

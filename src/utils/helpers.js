@@ -163,6 +163,7 @@ const MOLECULE_TEXT_PLACEHOLDER_FIELDS = new Set([
   'nome_planta',
   'database',
   'origem',
+  'geolocalizacao',
   'activity',
 ]);
 
@@ -229,6 +230,13 @@ export const filterMolecules = (molecules, filters, searchTerm = '') => {
       filters.referencia?.length &&
       !filters.referencia.some((r) =>
         normalize(mol.referencia).includes(normalize(r.value))
+      )
+    ) return false;
+
+    if (
+      filters.geolocalizacao?.length &&
+      !filters.geolocalizacao.some((l) =>
+        normalize(mol.geolocalizacao).includes(normalize(l.value))
       )
     ) return false;
 
