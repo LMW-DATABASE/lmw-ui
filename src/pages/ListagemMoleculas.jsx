@@ -22,6 +22,7 @@ const ListagemMoleculas = () => {
     origem: [],
     nome_planta: [],
     referencia: [],
+    geolocalizacao: [],
     atividade: [''],
   });
 
@@ -129,6 +130,13 @@ const ListagemMoleculas = () => {
           filters.referencia.length &&
           !filters.referencia.some((r) =>
             normalize(mol.referencia).includes(normalize(r.value))
+          )
+        ) return false;
+
+        if (
+          filters.geolocalizacao.length &&
+          !filters.geolocalizacao.some((l) =>
+            normalize(mol.geolocalizacao).includes(normalize(l.value))
           )
         ) return false;
 

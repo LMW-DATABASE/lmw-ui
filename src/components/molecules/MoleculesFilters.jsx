@@ -8,6 +8,7 @@ const MoleculesFilters = ({ filters, onApply }) => {
     origem: [],
     nome_planta: [],
     referencia: [],
+    geolocalizacao: [],
   });
 
   const [localFilters, setLocalFilters] = useState(filters);
@@ -23,7 +24,11 @@ const MoleculesFilters = ({ filters, onApply }) => {
         const data = res.data;
 
         const unique = (key) =>
-          [...new Set(data.map((i) => i[key]).filter(Boolean))].map((v) => ({
+          [...new Set(
+            data
+              .map((i) => i[key])
+              .filter((v) => v && v !== 'Não Informado')
+          )].map((v) => ({
             label: v,
             value: v,
           }));
@@ -33,6 +38,7 @@ const MoleculesFilters = ({ filters, onApply }) => {
           origem: unique('origem'),
           nome_planta: unique('nome_planta'),
           referencia: unique('referencia'),
+          geolocalizacao: unique('geolocalizacao'),
         });
       } catch (err) {
         console.error(err);
@@ -82,6 +88,7 @@ const MoleculesFilters = ({ filters, onApply }) => {
       origem: [],
       nome_planta: [],
       referencia: [],
+      geolocalizacao: [],
       atividade: [''],
     });
   };
@@ -139,6 +146,18 @@ const MoleculesFilters = ({ filters, onApply }) => {
             value={localFilters.referencia}
             onChange={(v) =>
               setLocalFilters((p) => ({ ...p, referencia: v }))
+            }
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold mb-2">Geolocalização</label>
+          <Select
+            isMulti
+            options={options.geolocalizacao}
+            value={localFilters.geolocalizacao}
+            onChange={(v) =>
+              setLocalFilters((p) => ({ ...p, geolocalizacao: v }))
             }
           />
         </div>

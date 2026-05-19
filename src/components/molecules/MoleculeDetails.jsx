@@ -1,8 +1,23 @@
 import React from 'react';
-import { BeakerIcon, InformationCircleIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { BeakerIcon, InformationCircleIcon, ChartBarIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+
+const hasMetadataValue = (value) => {
+  if (!value) return false;
+  const trimmed = String(value).trim();
+  return trimmed && trimmed !== 'Não Informado';
+};
+
+const isLink = (value) => /^https?:\/\//i.test(String(value).trim());
 
 const MoleculeDetails = ({ molecule }) => {
   if (!molecule) return null;
+
+  const metadataFields = [
+    { label: 'Referência', value: molecule.referencia, isReference: true },
+    { label: 'Database', value: molecule.database },
+    { label: 'Origem', value: molecule.origem },
+    { label: 'Geolocalização', value: molecule.geolocalizacao },
+  ].filter((field) => hasMetadataValue(field.value));
 
   const DataRow = ({ label, value }) => (
     <div className="flex justify-between py-2 border-b border-gray-50 last:border-0">
@@ -45,6 +60,34 @@ const MoleculeDetails = ({ molecule }) => {
           </div>
         </div>
       </div>
+
+      {metadataFields.length > 0 && (
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="flex items-center gap-2 mb-4 text-slate-600">
+            <DocumentTextIcon className="w-5 h-5" />
+            <h2 className="text-lg font-bold">Metadados da molécula</h2>
+          </div>
+          <div className="space-y-3">
+            {metadataFields.map((field) => (
+              <div key={field.label} className="py-2 border-b border-gray-50 last:border-0">
+                <span className="text-gray-500 font-medium text-sm">{field.label}</span>
+                {field.isReference && isLink(field.value) ? (
+                  <a
+                    href={field.value.trim()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block mt-1 text-indigo-600 hover:underline break-all text-sm"
+                  >
+                    {field.value}
+                  </a>
+                ) : (
+                  <p className="text-gray-900 mt-1 break-all text-sm">{field.value}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Grid de Propriedades Técnicas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

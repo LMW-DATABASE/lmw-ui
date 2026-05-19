@@ -17,6 +17,7 @@ const Home = () => {
     origem: [],
     nome_planta: [],
     referencia: [],
+    geolocalizacao: [],
     atividade: [''],
   });
 
@@ -113,7 +114,7 @@ const Home = () => {
 
         {!loading && !error && currentMolecules.length === 0 && (
           <div className="text-center py-10">
-            {query || filters.database.length || filters.origem.length || filters.nome_planta.length || filters.referencia.length || filters.atividade.some((a) => a.trim() !== '')
+            {query || filters.database.length || filters.origem.length || filters.nome_planta.length || filters.referencia.length || filters.geolocalizacao.length || filters.atividade.some((a) => a.trim() !== '')
               ? 'Nenhuma molécula encontrada.'
               : 'Nenhuma molécula disponível.'}
           </div>
