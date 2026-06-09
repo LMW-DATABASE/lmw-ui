@@ -1,0 +1,14 @@
+{
+  "heroSubtitle": "Plataforma de Estruturas Químicas Moleculares",
+  "heroDescription": "Plataforma digital desenvolvida por estudantes da UTFPR para armazenamento, visualização e busca de estruturas químicas de compostos moleculares, promovendo a interdisciplinaridade entre computação, química e biotecnologia.",
+  "featuresTitle": "Recursos da Plataforma",
+  "featuresSubtitle": "Ferramentas avançadas para pesquisa e análise de estruturas químicas",
+  "storageTitle": "Armazenamento de Estruturas",
+  "storageDesc": "Base de dados robusta para armazenar e organizar estruturas químicas moleculares",
+  "searchTitle": "Busca Avançada",
+  "searchDesc": "Sistema de busca inteligente para encontrar compostos específicos por propriedades químicas",
+  "visualizationTitle": "Visualização Interativa",
+  "visualizationDesc": "Interface intuitiva para visualizar estruturas moleculares em 2D e 3D",
+  "aboutTitle": "Sobre o Projeto",
+  "aboutDescription": "O projeto LMW DataBase foi desenvolvido por estudantes da Universidade Tecnológica Federal do Paraná (UTFPR) com o objetivo de criar uma plataforma digital voltada ao armazenamento, visualização e busca de estruturas químicas de compostos moleculares. A iniciativa surge da crescente demanda por ferramentas digitais que integrem recursos interativos à pesquisa e ao ensino de química, promovendo a interdisciplinaridade entre áreas como computação, química e biotecnologia."
+}

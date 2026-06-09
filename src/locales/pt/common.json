@@ -1,0 +1,19 @@
+{
+  "appTitle": "LMW DataBase",
+  "appSubtitle": "Plataforma de Estruturas Químicas",
+  "login": "Fazer Login",
+  "logout": "Sair",
+  "loading": "Carregando...",
+  "cancel": "Cancelar",
+  "close": "Fechar",
+  "back": "← Voltar",
+  "notFoundTitle": "Página não encontrada",
+  "notFoundMessage": "A página que você está procurando não existe.",
+  "footerAbout": "Sobre o Projeto",
+  "footerCopyright": "© {{year}} UTFPR - Universidade Tecnológica Federal do Paraná",
+  "footerTagline": "Plataforma de Estruturas Químicas Moleculares",
+  "paginationPrevious": "Anterior",
+  "paginationNext": "Próximo",
+  "themeDark": "Ativar modo escuro",
+  "themeLight": "Ativar modo claro"
+}

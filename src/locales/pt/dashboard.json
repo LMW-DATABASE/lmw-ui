@@ -1,0 +1,11 @@
+{
+  "title": "Dashboard",
+  "greeting": "Olá, {{name}}. Acesse rapidamente as principais operações do sistema.",
+  "defaultUser": "utilizador",
+  "registerUserTitle": "Cadastrar usuário",
+  "registerUserDesc": "Abra o modal de cadastro para adicionar um novo utilizador ao sistema.",
+  "addMoleculeTitle": "Adicionar molécula",
+  "addMoleculeDesc": "Cadastre uma nova estrutura individualmente ou por ficheiro Excel.",
+  "manageMoleculesTitle": "Gerenciar moléculas",
+  "manageMoleculesDesc": "Consulte, edite e acompanhe o estado de processamento das moléculas."
+}

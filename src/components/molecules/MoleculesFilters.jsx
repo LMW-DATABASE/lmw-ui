@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Select from 'react-select';
 import api from '../../services/api';
+import { NOT_INFORMED } from '@/utils/helpers';
 
 const MoleculesFilters = ({ filters, onApply }) => {
+  const { t } = useTranslation('molecules');
   const [options, setOptions] = useState({
     database: [],
     origem: [],
@@ -27,7 +30,7 @@ const MoleculesFilters = ({ filters, onApply }) => {
           [...new Set(
             data
               .map((i) => i[key])
-              .filter((v) => v && v !== 'Não Informado')
+              .filter((v) => v && v !== NOT_INFORMED)
           )].map((v) => ({
             label: v,
             value: v,
@@ -95,12 +98,10 @@ const MoleculesFilters = ({ filters, onApply }) => {
 
   return (
     <div className="space-y-8">
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
         <div>
-          <label className="block text-sm font-semibold mb-3">Database</label>
-          <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3">
+          <label className="block text-sm font-semibold mb-3">{t('filterDatabase')}</label>
+          <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-3">
             {options.database.map((db) => (
               <label key={db.value} className="flex items-center gap-2 text-sm">
                 <input
@@ -115,7 +116,7 @@ const MoleculesFilters = ({ filters, onApply }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-2">Origem</label>
+          <label className="block text-sm font-semibold mb-2">{t('filterOrigin')}</label>
           <Select
             isMulti
             options={options.origem}
@@ -127,7 +128,7 @@ const MoleculesFilters = ({ filters, onApply }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-2">Nome da Planta</label>
+          <label className="block text-sm font-semibold mb-2">{t('filterPlantName')}</label>
           <Select
             isMulti
             options={options.nome_planta}
@@ -139,7 +140,7 @@ const MoleculesFilters = ({ filters, onApply }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-2">Referência</label>
+          <label className="block text-sm font-semibold mb-2">{t('filterReference')}</label>
           <Select
             isMulti
             options={options.referencia}
@@ -151,7 +152,7 @@ const MoleculesFilters = ({ filters, onApply }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold mb-2">Geolocalização</label>
+          <label className="block text-sm font-semibold mb-2">{t('filterGeolocation')}</label>
           <Select
             isMulti
             options={options.geolocalizacao}
@@ -162,10 +163,9 @@ const MoleculesFilters = ({ filters, onApply }) => {
           />
         </div>
 
-        {/* 🔹 ATIVIDADES DINÂMICAS */}
         <div className="md:col-span-2">
           <label className="block text-sm font-semibold mb-2">
-            Atividades (palavras-chave)
+            {t('filterActivities')}
           </label>
 
           <div className="space-y-3">
@@ -175,13 +175,14 @@ const MoleculesFilters = ({ filters, onApply }) => {
                   type="text"
                   value={a}
                   onChange={(e) => updateAtividade(i, e.target.value)}
-                  className="flex-1 px-4 py-2 border rounded-lg"
-                  placeholder="Ex: antifúngica"
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  placeholder={t('activityPlaceholder')}
                 />
                 {localFilters.atividade.length > 1 && (
                   <button
                     onClick={() => removeAtividade(i)}
                     className="px-3 bg-red-100 rounded-lg"
+                    aria-label={t('common:close')}
                   >
                     ✕
                   </button>
@@ -193,25 +194,25 @@ const MoleculesFilters = ({ filters, onApply }) => {
               onClick={addAtividade}
               className="text-indigo-600 text-sm hover:underline"
             >
-              + Adicionar atividade
+              {t('addActivity')}
             </button>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-between pt-6 border-t">
+      <div className="flex justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
         <button
           onClick={clearFilters}
-          className="px-4 py-2 bg-gray-100 rounded-lg"
+          className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
         >
-          Limpar filtros
+          {t('clearFilters')}
         </button>
 
         <button
           onClick={() => onApply(localFilters)}
           className="px-6 py-2 bg-indigo-600 text-white rounded-lg"
         >
-          Aplicar filtros
+          {t('applyFilters')}
         </button>
       </div>
     </div>

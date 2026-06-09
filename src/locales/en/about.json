@@ -1,0 +1,14 @@
+{
+  "heroSubtitle": "Molecular Chemical Structures Platform",
+  "heroDescription": "Digital platform developed by UTFPR students for storage, visualization and search of molecular compound chemical structures, promoting interdisciplinarity between computing, chemistry and biotechnology.",
+  "featuresTitle": "Platform Features",
+  "featuresSubtitle": "Advanced tools for chemical structure research and analysis",
+  "storageTitle": "Structure Storage",
+  "storageDesc": "Robust database to store and organize molecular chemical structures",
+  "searchTitle": "Advanced Search",
+  "searchDesc": "Intelligent search system to find specific compounds by chemical properties",
+  "visualizationTitle": "Interactive Visualization",
+  "visualizationDesc": "Intuitive interface to visualize molecular structures in 2D and 3D",
+  "aboutTitle": "About the Project",
+  "aboutDescription": "The LMW DataBase project was developed by students at the Federal University of Technology - Paraná (UTFPR) to create a digital platform for storage, visualization and search of molecular compound chemical structures. The initiative addresses the growing demand for digital tools that integrate interactive resources into chemistry research and teaching, promoting interdisciplinarity across computing, chemistry and biotechnology."
+}

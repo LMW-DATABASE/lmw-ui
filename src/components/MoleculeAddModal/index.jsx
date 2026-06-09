@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import SingleAddForm from './SingleAddForm';
 import BulkUploadForm from './BulkUploadForm';
 
 const MoleculeAddModal = ({ isOpen, onClose }) => {
+  const { t } = useTranslation('molecules');
   const [activeTab, setActiveTab] = useState('single');
 
   if (!isOpen) {
@@ -18,21 +20,21 @@ const MoleculeAddModal = ({ isOpen, onClose }) => {
     >
       <div className="min-h-full flex items-center justify-center p-4 py-8">
         <div
-          className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+          className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-transparent dark:border-gray-700"
           onClick={(e) => e.stopPropagation()}
           role="dialog"
           aria-modal="true"
           aria-labelledby="molecule-add-modal-title"
         >
-          <div className="flex-shrink-0 flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-gray-100">
-            <h2 id="molecule-add-modal-title" className="text-2xl font-bold text-gray-900 pr-2">
-              Adicionar Moléculas
+          <div className="flex-shrink-0 flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-gray-100 dark:border-gray-800">
+            <h2 id="molecule-add-modal-title" className="text-2xl font-bold text-gray-900 dark:text-gray-100 pr-2">
+              {t('addModalTitle')}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="flex-shrink-0 z-10 p-1 -m-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-              aria-label="Fechar"
+              className="flex-shrink-0 z-10 p-1 -m-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label={t('common:close')}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -40,7 +42,7 @@ const MoleculeAddModal = ({ isOpen, onClose }) => {
             </button>
           </div>
 
-          <div className="flex-shrink-0 px-6 pt-4 border-b border-gray-200">
+          <div className="flex-shrink-0 px-6 pt-4 border-b border-gray-200 dark:border-gray-700">
             <nav className="-mb-px flex space-x-6" aria-label="Tabs">
               <button
                 type="button"
@@ -48,10 +50,10 @@ const MoleculeAddModal = ({ isOpen, onClose }) => {
                 className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'single'
                     ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
-                Cadastro Individual
+                {t('tabSingle')}
               </button>
               <button
                 type="button"
@@ -59,10 +61,10 @@ const MoleculeAddModal = ({ isOpen, onClose }) => {
                 className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'bulk'
                     ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
-                Cadastro em Massa (Excel)
+                {t('tabBulk')}
               </button>
             </nav>
           </div>

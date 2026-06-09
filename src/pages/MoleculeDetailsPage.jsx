@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import i18n from '@/i18n';
 import api from '../services/api';
 import MoleculeDetails from '../components/molecules/MoleculeDetails';
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 
 const MoleculeDetailsPage = () => {
-  const { id } = useParams(); 
+  const { t } = useTranslation('molecules');
+  const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [molecule, setMolecule] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,8 +22,8 @@ const MoleculeDetailsPage = () => {
         const response = await api.get(`molecules/${id}/`);
         setMolecule(response.data);
       } catch (err) {
-        console.error("Erro ao carregar detalhes:", err);
-        setError("Molécula não encontrada ou erro na conexão.");
+        console.error('Erro ao carregar detalhes:', err);
+        setError(i18n.t('molecules:notFoundOrConnection'));
       } finally {
         setLoading(false);
       }
@@ -29,31 +32,35 @@ const MoleculeDetailsPage = () => {
     if (id) fetchMoleculeData();
   }, [id]);
 
-  if (loading) return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
-  if (error) return (
-    <div className="text-center py-20">
-      <p className="text-red-500 mb-4">{error}</p>
-      <button onClick={() => navigate('/')} className="text-indigo-600 hover:underline">
-        Voltar para a busca
-      </button>
-    </div>
-  );
+  if (error) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button onClick={() => navigate('/')} className="text-indigo-600 hover:underline">
+          {t('backToSearch')}
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
-      <div className="bg-white border-b border-gray-200 mb-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-12">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 mb-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <button 
-            onClick={() => navigate(-1)} 
-            className="flex items-center text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors"
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
           >
             <ArrowLeftIcon className="w-4 h-4 mr-2" />
-            Voltar para resultados
+            {t('backToResults')}
           </button>
         </div>
       </div>

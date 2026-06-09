@@ -1,40 +1,42 @@
+import i18n from '@/i18n';
+
 // Validações para formulários
 export const validators = {
   required: (value) => {
-    return !value || !value.toString().trim() ? 'Este campo é obrigatório' : null;
+    return !value || !value.toString().trim() ? i18n.t('validators:required') : null;
   },
 
   email: (value) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return !emailRegex.test(value) ? 'E-mail inválido' : null;
+    return !emailRegex.test(value) ? i18n.t('validators:email') : null;
   },
 
   minLength: (min) => (value) => {
-    return value && value.length < min ? `Deve ter pelo menos ${min} caracteres` : null;
+    return value && value.length < min ? i18n.t('validators:minLength', { min }) : null;
   },
 
   maxLength: (max) => (value) => {
-    return value && value.length > max ? `Deve ter no máximo ${max} caracteres` : null;
+    return value && value.length > max ? i18n.t('validators:maxLength', { max }) : null;
   },
 
   passwordMatch: (confirmPassword, allValues) => {
-    return confirmPassword !== allValues.senha ? 'Senhas não coincidem' : null;
+    return confirmPassword !== allValues.senha ? i18n.t('validators:passwordMismatch') : null;
   },
 
   strongPassword: (value) => {
     if (!value) return null;
-    
+
     const hasUpperCase = /[A-Z]/.test(value);
     const hasLowerCase = /[a-z]/.test(value);
     const hasNumbers = /\d/.test(value);
     const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
     const isLongEnough = value.length >= 8;
 
-    if (!isLongEnough) return 'Senha deve ter pelo menos 8 caracteres';
-    if (!hasUpperCase) return 'Senha deve conter pelo menos uma letra maiúscula';
-    if (!hasLowerCase) return 'Senha deve conter pelo menos uma letra minúscula';
-    if (!hasNumbers) return 'Senha deve conter pelo menos um número';
-    if (!hasSpecial) return 'Senha deve conter pelo menos um caractere especial';
+    if (!isLongEnough) return i18n.t('validators:passwordMinLength');
+    if (!hasUpperCase) return i18n.t('validators:passwordUppercase');
+    if (!hasLowerCase) return i18n.t('validators:passwordLowercase');
+    if (!hasNumbers) return i18n.t('validators:passwordNumber');
+    if (!hasSpecial) return i18n.t('validators:passwordSpecial');
 
     return null;
   }
