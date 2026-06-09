@@ -26,10 +26,7 @@ const Footer = () => {
           </div>
 
           <div className="text-center md:text-right">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {t('footerCopyright', { year: new Date().getFullYear() })}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-500">
               {t('footerTagline')}
             </p>
           </div>
