@@ -6,8 +6,29 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: system-ui, sans-serif;
+  @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100;
+}
+
+@layer base {
+  input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']):not([type='file']),
+  textarea,
+  select {
+    @apply bg-white text-gray-900 placeholder:text-gray-400 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500;
+  }
 }
 
 #root {
   min-height: 100vh;
+}
+
+@layer components {
+  .molecule-svg-container svg {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  /* RDKit SVGs include a white background rect as the first direct child */
+  .molecule-svg-container svg > rect:first-of-type {
+    fill: transparent !important;
+  }
 }

@@ -1,0 +1,12 @@
+{
+  "required": "Este campo é obrigatório",
+  "email": "E-mail inválido",
+  "minLength": "Deve ter pelo menos {{min}} caracteres",
+  "maxLength": "Deve ter no máximo {{max}} caracteres",
+  "passwordMismatch": "Senhas não coincidem",
+  "passwordMinLength": "Senha deve ter pelo menos 8 caracteres",
+  "passwordUppercase": "Senha deve conter pelo menos uma letra maiúscula",
+  "passwordLowercase": "Senha deve conter pelo menos uma letra minúscula",
+  "passwordNumber": "Senha deve conter pelo menos um número",
+  "passwordSpecial": "Senha deve conter pelo menos um caractere especial"
+}

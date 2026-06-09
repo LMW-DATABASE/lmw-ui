@@ -1,0 +1,11 @@
+{
+  "title": "Dashboard",
+  "greeting": "Hello, {{name}}. Quickly access the main system operations.",
+  "defaultUser": "user",
+  "registerUserTitle": "Register user",
+  "registerUserDesc": "Open the registration modal to add a new user to the system.",
+  "addMoleculeTitle": "Add molecule",
+  "addMoleculeDesc": "Register a new structure individually or via Excel file.",
+  "manageMoleculesTitle": "Manage molecules",
+  "manageMoleculesDesc": "Browse, edit and monitor molecule processing status."
+}

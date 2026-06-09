@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
+import i18n from '@/i18n';
 import api from '@/services/api';
 
 const AuthContext = createContext();
@@ -56,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'Credenciais inválidas'
+        error: error.response?.data?.error || i18n.t('auth:invalidCredentials')
       };
     }
   };

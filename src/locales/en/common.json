@@ -1,0 +1,18 @@
+{
+  "appTitle": "LMW DataBase",
+  "appSubtitle": "Molecular Chemical Structures Platform",
+  "login": "Log In",
+  "logout": "Log Out",
+  "loading": "Loading...",
+  "cancel": "Cancel",
+  "close": "Close",
+  "back": "← Back",
+  "notFoundTitle": "Page not found",
+  "notFoundMessage": "The page you are looking for does not exist.",
+  "footerAbout": "About the Project",
+  "footerTagline": "Molecular Chemical Structures Platform",
+  "paginationPrevious": "Previous",
+  "paginationNext": "Next",
+  "themeDark": "Enable dark mode",
+  "themeLight": "Enable light mode"
+}

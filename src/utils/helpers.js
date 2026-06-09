@@ -1,3 +1,5 @@
+export const NOT_INFORMED = 'Não Informado';
+
 // =======================
 // Formatadores de dados
 // =======================
@@ -179,7 +181,7 @@ export const normalizeMoleculeFormData = (data) => {
     const trimmedValue = normalizeFormTextValue(value);
 
     if (MOLECULE_TEXT_PLACEHOLDER_FIELDS.has(key)) {
-      normalized[key] = trimmedValue ? trimmedValue : 'Não Informado';
+      normalized[key] = trimmedValue ? trimmedValue : NOT_INFORMED;
       return;
     }
 
