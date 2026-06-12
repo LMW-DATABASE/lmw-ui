@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
 import api from "../services/api";
-import { normalizeMoleculeFormData } from "../utils/helpers";
+import { formatMoleculeDatabases, normalizeMoleculeFormData } from "../utils/helpers";
 
 export default function EditMolecule() {
   const { t } = useTranslation('molecules');
@@ -128,7 +128,7 @@ export default function EditMolecule() {
                 </label>
                 <input
                   name="database"
-                  value={form.database || ""}
+                  value={formatMoleculeDatabases(form)}
                   onChange={handleChange}
                   className="w-full border border-gray-300 dark:border-gray-600 p-2 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-gray-100"
                 />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { formatMoleculeDatabases } from '@/utils/helpers';
 
 const MoleculeCard = ({ molecule }) => {
   const { t } = useTranslation('molecules');
@@ -26,7 +27,7 @@ const MoleculeCard = ({ molecule }) => {
 
           <div className="mt-2 space-y-1">
             <p className="text-xs font-medium text-indigo-600 uppercase tracking-wider">
-              {molecule.database || t('databaseNotInformed')}
+              {formatMoleculeDatabases(molecule, t('databaseNotInformed'))}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 truncate" title={molecule.smiles}>
               <span className="font-semibold text-gray-700 dark:text-gray-300">{t('fields.smiles')}:</span> {molecule.smiles}

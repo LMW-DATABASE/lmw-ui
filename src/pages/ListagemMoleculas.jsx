@@ -6,6 +6,11 @@ import api from '../services/api';
 import Pagination from '../components/common/Pagination';
 import MoleculesFilters from '../components/molecules/MoleculesFilters';
 import MoleculeDetails from '../components/molecules/MoleculeDetails';
+import {
+  getMoleculeDatabases,
+  moleculeDatabaseSearchText,
+  moleculeMatchesDatabase,
+} from '../utils/helpers';
 
 const normalize = (v) => v?.toString().toLowerCase().trim() || '';
 
@@ -101,14 +106,14 @@ const ListagemMoleculas = () => {
           !(
             normalize(mol.nome_molecula).includes(normalize(searchTerm)) ||
             normalize(mol.nome_planta).includes(normalize(searchTerm)) ||
-            normalize(mol.database).includes(normalize(searchTerm))
+            normalize(moleculeDatabaseSearchText(mol)).includes(normalize(searchTerm))
           )
         ) return false;
 
         if (
           filters.database.length &&
           !filters.database.some((db) =>
-            normalize(mol.database) === normalize(db)
+            moleculeMatchesDatabase(mol, db)
           )
         ) return false;
 
@@ -258,9 +263,20 @@ const ListagemMoleculas = () => {
                   >
                     <td className="px-4 py-2">{mol.nome_molecula || '-'}</td>
                     <td className="px-4 py-2">
-                      <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
-                        {mol.database || '-'}
-                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {getMoleculeDatabases(mol).length ? (
+                          getMoleculeDatabases(mol).map((database) => (
+                            <span
+                              key={database}
+                              className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"
+                            >
+                              {database}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-sm text-gray-500">-</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-2 max-w-sm">
                       <div className="truncate text-sm text-gray-700 dark:text-gray-300" title={mol.smiles || '-'}>

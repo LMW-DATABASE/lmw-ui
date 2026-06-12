@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { BeakerIcon, InformationCircleIcon, ChartBarIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
-import { NOT_INFORMED } from '@/utils/helpers';
+import { formatMoleculeDatabases, NOT_INFORMED } from '@/utils/helpers';
 
 const hasMetadataValue = (value) => {
   if (!value) return false;
@@ -24,7 +24,7 @@ const MoleculeDetails = ({ molecule }) => {
 
   const metadataFields = [
     { labelKey: 'reference', value: molecule.referencia, isReference: true },
-    { labelKey: 'filterDatabase', value: molecule.database },
+    { labelKey: 'filterDatabase', value: formatMoleculeDatabases(molecule) },
     { labelKey: 'origin', value: molecule.origem },
     { labelKey: 'geolocation', value: molecule.geolocalizacao },
   ].filter((field) => hasMetadataValue(field.value));

@@ -174,10 +174,51 @@ const normalizeFormTextValue = (value) => {
   return typeof value === 'string' ? value.trim() : value;
 };
 
+export const getMoleculeDatabases = (moleculeOrDatabase) => {
+  const value = Array.isArray(moleculeOrDatabase?.database)
+    ? moleculeOrDatabase.database
+    : moleculeOrDatabase?.database ?? moleculeOrDatabase?.databases ?? moleculeOrDatabase;
+
+  const values = Array.isArray(value) ? value : [value];
+
+  return values
+    .map((database) => (database == null ? '' : String(database).trim()))
+    .filter((database) => database && database !== NOT_INFORMED);
+};
+
+export const formatMoleculeDatabases = (moleculeOrDatabase, fallback = '') => {
+  const databases = getMoleculeDatabases(moleculeOrDatabase);
+  return databases.length ? databases.join(', ') : fallback;
+};
+
+export const moleculeMatchesDatabase = (molecule, database) => {
+  const normalizedDatabase = normalize(database);
+  return getMoleculeDatabases(molecule).some(
+    (molDatabase) => normalize(molDatabase) === normalizedDatabase
+  );
+};
+
+export const moleculeDatabaseSearchText = (molecule) =>
+  getMoleculeDatabases(molecule).join(' ');
+
+export const normalizeDatabaseFormValue = (value) => {
+  const rawValues = Array.isArray(value) ? value : String(value || '').split(',');
+  const databases = rawValues
+    .map((database) => String(database || '').trim())
+    .filter(Boolean);
+
+  return databases.length ? databases : [NOT_INFORMED];
+};
+
 export const normalizeMoleculeFormData = (data) => {
   const normalized = {};
 
   Object.entries(data).forEach(([key, value]) => {
+    if (key === 'database') {
+      normalized[key] = normalizeDatabaseFormValue(value);
+      return;
+    }
+
     const trimmedValue = normalizeFormTextValue(value);
 
     if (MOLECULE_TEXT_PLACEHOLDER_FIELDS.has(key)) {
@@ -203,14 +244,14 @@ export const filterMolecules = (molecules, filters, searchTerm = '') => {
       !(
         normalize(mol.nome_molecula).includes(normalize(searchTerm)) ||
         normalize(mol.nome_planta).includes(normalize(searchTerm)) ||
-        normalize(mol.database).includes(normalize(searchTerm))
+        normalize(moleculeDatabaseSearchText(mol)).includes(normalize(searchTerm))
       )
     ) return false;
 
     if (
       filters.database?.length &&
       !filters.database.some((db) =>
-        normalize(mol.database) === normalize(db)
+        moleculeMatchesDatabase(mol, db)
       )
     ) return false;
 
