@@ -194,66 +194,19 @@ export const normalizeMoleculeFormData = (data) => {
 // =======================
 // Filtro reutilizável de moléculas
 // =======================
-const normalize = (v) => v?.toString().toLowerCase().trim() || '';
+export {
+  DEFAULT_MOLECULE_FILTERS,
+  MOLECULE_RANGE_FIELDS,
+  buildMoleculeApiParams,
+  createDefaultMoleculeFilters,
+  filterMolecules,
+  hasActiveMoleculeFilters,
+} from './moleculeFilters';
 
-export const filterMolecules = (molecules, filters, searchTerm = '') => {
-  return molecules.filter((mol) => {
-    if (
-      searchTerm &&
-      !(
-        normalize(mol.nome_molecula).includes(normalize(searchTerm)) ||
-        normalize(mol.nome_planta).includes(normalize(searchTerm)) ||
-        normalize(mol.database).includes(normalize(searchTerm))
-      )
-    ) return false;
-
-    if (
-      filters.database?.length &&
-      !filters.database.some((db) =>
-        normalize(mol.database) === normalize(db)
-      )
-    ) return false;
-
-    if (
-      filters.origem?.length &&
-      !filters.origem.some((o) =>
-        normalize(mol.origem).includes(normalize(o.value))
-      )
-    ) return false;
-
-    if (
-      filters.nome_planta?.length &&
-      !filters.nome_planta.some((p) =>
-        normalize(mol.nome_planta).includes(normalize(p.value))
-      )
-    ) return false;
-
-    if (
-      filters.referencia?.length &&
-      !filters.referencia.some((r) =>
-        normalize(mol.referencia).includes(normalize(r.value))
-      )
-    ) return false;
-
-    if (
-      filters.geolocalizacao?.length &&
-      !filters.geolocalizacao.some((l) =>
-        normalize(mol.geolocalizacao).includes(normalize(l.value))
-      )
-    ) return false;
-
-    const atividadesValidas = filters.atividade?.filter(
-      (a) => a.trim() !== ''
-    );
-
-    // 🔹 OR: basta conter UMA atividade
-    if (
-      atividadesValidas?.length &&
-      !atividadesValidas.some((a) =>
-        normalize(mol.activity).includes(normalize(a))
-      )
-    ) return false;
-
-    return true;
-  });
-};
+export {
+  MOLECULE_SEARCH_STORAGE_KEYS,
+  createInitialSearchState,
+  loadMoleculeSearchState,
+  mergeStoredFilters,
+  saveMoleculeSearchState,
+} from './moleculeSearchStorage';

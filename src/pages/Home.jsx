@@ -5,28 +5,46 @@ import api from '../services/api';
 import MoleculeCard from '../components/molecules/MoleculesCard.jsx';
 import Pagination from '../components/common/Pagination';
 import MoleculesFilters from '../components/molecules/MoleculesFilters';
-import { filterMolecules } from '../utils/helpers';
+import {
+  buildMoleculeApiParams,
+  filterMolecules,
+  hasActiveMoleculeFilters,
+  MOLECULE_SEARCH_STORAGE_KEYS,
+  createInitialSearchState,
+  saveMoleculeSearchState,
+} from '../utils/helpers';
+
+const getInitialPublicSearchState = () => createInitialSearchState(
+  MOLECULE_SEARCH_STORAGE_KEYS.public
+);
 
 const Home = () => {
   const { t } = useTranslation('molecules');
   const [allMolecules, setAllMolecules] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [query, setQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState(() => getInitialPublicSearchState().searchTerm);
+  const [query, setQuery] = useState(() => getInitialPublicSearchState().query);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [filters, setFilters] = useState({
-    database: [],
-    origem: [],
-    nome_planta: [],
-    referencia: [],
-    geolocalizacao: [],
-    atividade: [''],
-  });
+  const [filters, setFilters] = useState(() => getInitialPublicSearchState().filters);
 
   const [showFiltersModal, setShowFiltersModal] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(() => getInitialPublicSearchState().currentPage);
   const itemsPerPage = 20;
+
+  const apiParams = useMemo(
+    () => buildMoleculeApiParams(query, filters),
+    [query, filters]
+  );
+
+  useEffect(() => {
+    saveMoleculeSearchState(MOLECULE_SEARCH_STORAGE_KEYS.public, {
+      searchTerm,
+      query,
+      filters,
+      currentPage,
+    });
+  }, [searchTerm, query, filters, currentPage]);
 
   useEffect(() => {
     const fetchMolecules = async () => {
@@ -34,7 +52,7 @@ const Home = () => {
       setError(null);
       try {
         const response = await api.get('molecules/', {
-          params: query ? { search: query } : {},
+          params: apiParams,
         });
         setAllMolecules(response.data);
       } catch (err) {
@@ -46,15 +64,11 @@ const Home = () => {
     };
 
     fetchMolecules();
-  }, [query]);
+  }, [apiParams]);
 
   const filteredMolecules = useMemo(() => {
-    return filterMolecules(allMolecules, filters, query);
-  }, [allMolecules, filters, query]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters, query]);
+    return filterMolecules(allMolecules, filters);
+  }, [allMolecules, filters]);
 
   const currentMolecules = useMemo(() => {
     const firstItemIndex = (currentPage - 1) * itemsPerPage;
@@ -70,14 +84,7 @@ const Home = () => {
     setQuery(searchTerm);
   };
 
-  const hasActiveFilters =
-    query ||
-    filters.database.length ||
-    filters.origem.length ||
-    filters.nome_planta.length ||
-    filters.referencia.length ||
-    filters.geolocalizacao.length ||
-    filters.atividade.some((a) => a.trim() !== '');
+  const hasActiveFilters = hasActiveMoleculeFilters(query, filters);
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-160px)] p-4 sm:p-6 lg:p-8">
@@ -160,6 +167,7 @@ const Home = () => {
               filters={filters}
               onApply={(newFilters) => {
                 setFilters(newFilters);
+                setCurrentPage(1);
                 setShowFiltersModal(false);
               }}
             />

@@ -6,55 +6,78 @@ import api from '../services/api';
 import Pagination from '../components/common/Pagination';
 import MoleculesFilters from '../components/molecules/MoleculesFilters';
 import MoleculeDetails from '../components/molecules/MoleculeDetails';
+import {
+  buildMoleculeApiParams,
+  filterMolecules,
+  hasActiveMoleculeFilters,
+  MOLECULE_SEARCH_STORAGE_KEYS,
+  createInitialSearchState,
+  saveMoleculeSearchState,
+} from '../utils/helpers';
 
-const normalize = (v) => v?.toString().toLowerCase().trim() || '';
+const getInitialAdminSearchState = () => createInitialSearchState(
+  MOLECULE_SEARCH_STORAGE_KEYS.admin,
+  { showOnlyErrors: false }
+);
 
 const ListagemMoleculas = () => {
   const { t } = useTranslation('molecules');
   const navigate = useNavigate();
 
   const [allMolecules, setAllMolecules] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(() => getInitialAdminSearchState().searchTerm);
+  const [query, setQuery] = useState(() => getInitialAdminSearchState().query);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [showOnlyErrors, setShowOnlyErrors] = useState(false);
+  const [showOnlyErrors, setShowOnlyErrors] = useState(
+    () => getInitialAdminSearchState().showOnlyErrors
+  );
 
-  const [filters, setFilters] = useState({
-    database: [],
-    origem: [],
-    nome_planta: [],
-    referencia: [],
-    geolocalizacao: [],
-    atividade: [''],
-  });
+  const [filters, setFilters] = useState(() => getInitialAdminSearchState().filters);
 
   const [showFiltersModal, setShowFiltersModal] = useState(false);
   const [selectedMolecule, setSelectedMolecule] = useState(null);
   const [detailsMolecule, setDetailsMolecule] = useState(null);
   const optionsMenuRef = useRef(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(() => getInitialAdminSearchState().currentPage);
   const itemsPerPage = 20;
 
-  const fetchMolecules = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await api.get('molecules/');
-      setAllMolecules(response.data);
-      setCurrentPage(1);
-    } catch (err) {
-      console.error(err);
-      setError(i18n.t('molecules:loadErrorRetry'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const apiParams = useMemo(
+    () => buildMoleculeApiParams(query, filters),
+    [query, filters]
+  );
 
   useEffect(() => {
+    saveMoleculeSearchState(MOLECULE_SEARCH_STORAGE_KEYS.admin, {
+      searchTerm,
+      query,
+      filters,
+      currentPage,
+      showOnlyErrors,
+    });
+  }, [searchTerm, query, filters, currentPage, showOnlyErrors]);
+
+  useEffect(() => {
+    const fetchMolecules = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await api.get('molecules/', {
+          params: apiParams,
+        });
+        setAllMolecules(response.data);
+      } catch (err) {
+        console.error(err);
+        setError(i18n.t('molecules:loadErrorRetry'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchMolecules();
-  }, []);
+  }, [apiParams]);
 
   useEffect(() => {
     if (!selectedMolecule) return undefined;
@@ -91,71 +114,8 @@ const ListagemMoleculas = () => {
   const hasErrors = errorCount > 0;
 
   const filteredMolecules = useMemo(() => {
-    return allMolecules
-      .filter((mol) => {
-        if (showOnlyErrors && mol.status_processamento !== "erro")
-          return false;
-
-        if (
-          searchTerm &&
-          !(
-            normalize(mol.nome_molecula).includes(normalize(searchTerm)) ||
-            normalize(mol.nome_planta).includes(normalize(searchTerm)) ||
-            normalize(mol.database).includes(normalize(searchTerm))
-          )
-        ) return false;
-
-        if (
-          filters.database.length &&
-          !filters.database.some((db) =>
-            normalize(mol.database) === normalize(db)
-          )
-        ) return false;
-
-        if (
-          filters.origem.length &&
-          !filters.origem.some((o) =>
-            normalize(mol.origem).includes(normalize(o.value))
-          )
-        ) return false;
-
-        if (
-          filters.nome_planta.length &&
-          !filters.nome_planta.some((p) =>
-            normalize(mol.nome_planta).includes(normalize(p.value))
-          )
-        ) return false;
-
-        if (
-          filters.referencia.length &&
-          !filters.referencia.some((r) =>
-            normalize(mol.referencia).includes(normalize(r.value))
-          )
-        ) return false;
-
-        if (
-          filters.geolocalizacao.length &&
-          !filters.geolocalizacao.some((l) =>
-            normalize(mol.geolocalizacao).includes(normalize(l.value))
-          )
-        ) return false;
-
-        const atividadesValidas = filters.atividade.filter((a) => a.trim() !== '');
-
-        if (
-          atividadesValidas.length &&
-          !atividadesValidas.some((a) =>
-            normalize(mol.activity).includes(normalize(a))
-          )
-        ) return false;
-
-        return true;
-      });
-  }, [allMolecules, filters, searchTerm, showOnlyErrors]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters, searchTerm, showOnlyErrors]);
+    return filterMolecules(allMolecules, filters, { showOnlyErrors });
+  }, [allMolecules, filters, showOnlyErrors]);
 
   const currentMolecules = useMemo(() => {
     const first = (currentPage - 1) * itemsPerPage;
@@ -176,6 +136,14 @@ const ListagemMoleculas = () => {
     setSelectedMolecule((current) => (current?.id === molecule.id ? null : molecule));
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setCurrentPage(1);
+    setQuery(searchTerm);
+  };
+
+  const hasActiveFilters = hasActiveMoleculeFilters(query, filters) || showOnlyErrors;
+
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-[calc(100vh-160px)] p-6 sm:p-8">
       <div className="max-w-7xl mx-auto bg-white dark:bg-gray-900 p-6 rounded-lg shadow border border-transparent dark:border-gray-800">
@@ -187,7 +155,10 @@ const ListagemMoleculas = () => {
 
             {hasErrors && (
               <button
-                onClick={() => setShowOnlyErrors(!showOnlyErrors)}
+                onClick={() => {
+                  setShowOnlyErrors((prev) => !prev);
+                  setCurrentPage(1);
+                }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200
                   ${showOnlyErrors
                     ? "bg-orange-500 text-white shadow-md"
@@ -217,21 +188,30 @@ const ListagemMoleculas = () => {
           </button>
         </div>
 
-        <div className="mb-6">
+        <form onSubmit={handleSearch} className="flex items-center gap-4 mb-6">
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('filterPlaceholder')}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="flex-grow px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           />
-        </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {loading ? t('searching') : t('searchButton')}
+          </button>
+        </form>
 
         {loading && <div className="text-center py-10">{t('common:loading')}</div>}
         {error && <div className="text-center py-10 text-red-600">{error}</div>}
 
         {!loading && !error && currentMolecules.length === 0 && (
-          <div className="text-center py-10">{t('noResults')}</div>
+          <div className="text-center py-10">
+            {hasActiveFilters ? t('noResults') : t('noMolecules')}
+          </div>
         )}
 
         {!loading && !error && currentMolecules.length > 0 && (
@@ -381,6 +361,7 @@ const ListagemMoleculas = () => {
               filters={filters}
               onApply={(newFilters) => {
                 setFilters(newFilters);
+                setCurrentPage(1);
                 setShowFiltersModal(false);
               }}
             />
