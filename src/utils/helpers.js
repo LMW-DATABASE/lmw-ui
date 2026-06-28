@@ -191,6 +191,32 @@ export const formatMoleculeDatabases = (moleculeOrDatabase, fallback = '') => {
   return databases.length ? databases.join(', ') : fallback;
 };
 
+export const sortMoleculeDatabasesByActiveFilter = (moleculeOrDatabase, activeDatabases = []) => {
+  const databases = getMoleculeDatabases(moleculeOrDatabase);
+  const activeOrder = new Map(
+    activeDatabases.map((database, index) => [normalize(database), index])
+  );
+
+  return [...databases].sort((a, b) => {
+    const aOrder = activeOrder.get(normalize(a));
+    const bOrder = activeOrder.get(normalize(b));
+
+    if (aOrder == null && bOrder == null) return 0;
+    if (aOrder == null) return 1;
+    if (bOrder == null) return -1;
+    return aOrder - bOrder;
+  });
+};
+
+export const formatMoleculeDatabasesByActiveFilter = (
+  moleculeOrDatabase,
+  activeDatabases = [],
+  fallback = ''
+) => {
+  const databases = sortMoleculeDatabasesByActiveFilter(moleculeOrDatabase, activeDatabases);
+  return databases.length ? databases.join(', ') : fallback;
+};
+
 export const moleculeMatchesDatabase = (molecule, database) => {
   const normalizedDatabase = normalize(database);
   return getMoleculeDatabases(molecule).some(

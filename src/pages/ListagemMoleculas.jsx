@@ -7,7 +7,7 @@ import Pagination from '../components/common/Pagination';
 import MoleculesFilters from '../components/molecules/MoleculesFilters';
 import MoleculeDetails from '../components/molecules/MoleculeDetails';
 import {
-  getMoleculeDatabases,
+  formatMoleculeDatabasesByActiveFilter,
   moleculeDatabaseSearchText,
   moleculeMatchesDatabase,
 } from '../utils/helpers';
@@ -263,19 +263,11 @@ const ListagemMoleculas = () => {
                   >
                     <td className="px-4 py-2">{mol.nome_molecula || '-'}</td>
                     <td className="px-4 py-2">
-                      <div className="flex flex-wrap gap-1.5">
-                        {getMoleculeDatabases(mol).length ? (
-                          getMoleculeDatabases(mol).map((database) => (
-                            <span
-                              key={database}
-                              className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"
-                            >
-                              {database}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-sm text-gray-500">-</span>
-                        )}
+                      <div
+                        className="max-w-xs truncate text-sm font-medium text-indigo-700 dark:text-indigo-300"
+                        title={formatMoleculeDatabasesByActiveFilter(mol, filters.database, '-')}
+                      >
+                        {formatMoleculeDatabasesByActiveFilter(mol, filters.database, '-')}
                       </div>
                     </td>
                     <td className="px-4 py-2 max-w-sm">
