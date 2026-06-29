@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Select from 'react-select';
 import api from '../../services/api';
-import { NOT_INFORMED } from '@/utils/helpers';
+import { getMoleculeDatabases, NOT_INFORMED } from '@/utils/helpers';
 import { createDefaultMoleculeFilters } from '@/utils/moleculeFilters';
 import RangeFilter from './RangeFilter';
 
@@ -39,8 +39,16 @@ const MoleculesFilters = ({ filters, onApply }) => {
             value: v,
           }));
 
+        const uniqueDatabases = () =>
+          [...new Set(data.flatMap((item) => getMoleculeDatabases(item)))]
+            .sort((a, b) => a.localeCompare(b))
+            .map((value) => ({
+              label: value,
+              value,
+            }));
+
         setOptions({
-          database: unique('database'),
+          database: uniqueDatabases(),
           origem: unique('origem'),
           nome_planta: unique('nome_planta'),
           referencia: unique('referencia'),

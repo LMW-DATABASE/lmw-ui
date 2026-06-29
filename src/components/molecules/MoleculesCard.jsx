@@ -1,9 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { formatMoleculeDatabasesByActiveFilter } from '@/utils/helpers';
 
-const MoleculeCard = ({ molecule }) => {
+const MoleculeCard = ({ molecule, activeDatabases = [] }) => {
   const { t } = useTranslation('molecules');
+  const databaseText = formatMoleculeDatabasesByActiveFilter(
+    molecule,
+    activeDatabases,
+    t('databaseNotInformed')
+  );
 
   return (
     <Link to={`/molecules/${molecule.id}`} className="block group">
@@ -25,8 +31,11 @@ const MoleculeCard = ({ molecule }) => {
           </h3>
 
           <div className="mt-2 space-y-1">
-            <p className="text-xs font-medium text-indigo-600 uppercase tracking-wider">
-              {molecule.database || t('databaseNotInformed')}
+            <p
+              className="text-xs font-medium text-indigo-600 uppercase tracking-wider truncate"
+              title={databaseText}
+            >
+              {databaseText}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 truncate" title={molecule.smiles}>
               <span className="font-semibold text-gray-700 dark:text-gray-300">{t('fields.smiles')}:</span> {molecule.smiles}

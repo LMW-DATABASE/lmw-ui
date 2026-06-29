@@ -42,6 +42,24 @@ export const DEFAULT_MOLECULE_FILTERS = createDefaultMoleculeFilters();
 
 const normalize = (v) => v?.toString().toLowerCase().trim() || '';
 
+const getMoleculeDatabases = (molecule) => {
+  const value = Array.isArray(molecule?.database)
+    ? molecule.database
+    : molecule?.database ?? molecule?.databases ?? molecule;
+  const values = Array.isArray(value) ? value : [value];
+
+  return values
+    .map((database) => (database == null ? '' : String(database).trim()))
+    .filter(Boolean);
+};
+
+const moleculeMatchesDatabase = (molecule, database) => {
+  const normalizedDatabase = normalize(database);
+  return getMoleculeDatabases(molecule).some(
+    (molDatabase) => normalize(molDatabase) === normalizedDatabase
+  );
+};
+
 const hasRangeValue = (range) =>
   range?.min !== null && range?.min !== '' && range?.min !== undefined
   || range?.max !== null && range?.max !== '' && range?.max !== undefined;
@@ -89,7 +107,7 @@ export const filterMolecules = (molecules, filters, options = {}) => {
     if (
       filters.database?.length
       && !filters.database.some((db) =>
-        normalize(mol.database) === normalize(db)
+        moleculeMatchesDatabase(mol, db)
       )
     ) return false;
 

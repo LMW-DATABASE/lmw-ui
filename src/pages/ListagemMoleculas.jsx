@@ -13,6 +13,7 @@ import {
   MOLECULE_SEARCH_STORAGE_KEYS,
   createInitialSearchState,
   saveMoleculeSearchState,
+  formatMoleculeDatabasesByActiveFilter,
 } from '../utils/helpers';
 
 const getInitialAdminSearchState = () => createInitialSearchState(
@@ -238,9 +239,12 @@ const ListagemMoleculas = () => {
                   >
                     <td className="px-4 py-2">{mol.nome_molecula || '-'}</td>
                     <td className="px-4 py-2">
-                      <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
-                        {mol.database || '-'}
-                      </span>
+                      <div
+                        className="max-w-xs truncate text-sm font-medium text-indigo-700 dark:text-indigo-300"
+                        title={formatMoleculeDatabasesByActiveFilter(mol, filters.database, '-')}
+                      >
+                        {formatMoleculeDatabasesByActiveFilter(mol, filters.database, '-')}
+                      </div>
                     </td>
                     <td className="px-4 py-2 max-w-sm">
                       <div className="truncate text-sm text-gray-700 dark:text-gray-300" title={mol.smiles || '-'}>

@@ -174,10 +174,79 @@ const normalizeFormTextValue = (value) => {
   return typeof value === 'string' ? value.trim() : value;
 };
 
+const normalize = (v) => v?.toString().toLowerCase().trim() || '';
+
+export const getMoleculeDatabases = (moleculeOrDatabase) => {
+  const value = Array.isArray(moleculeOrDatabase?.database)
+    ? moleculeOrDatabase.database
+    : moleculeOrDatabase?.database ?? moleculeOrDatabase?.databases ?? moleculeOrDatabase;
+
+  const values = Array.isArray(value) ? value : [value];
+
+  return values
+    .map((database) => (database == null ? '' : String(database).trim()))
+    .filter((database) => database && database !== NOT_INFORMED);
+};
+
+export const formatMoleculeDatabases = (moleculeOrDatabase, fallback = '') => {
+  const databases = getMoleculeDatabases(moleculeOrDatabase);
+  return databases.length ? databases.join(', ') : fallback;
+};
+
+export const sortMoleculeDatabasesByActiveFilter = (moleculeOrDatabase, activeDatabases = []) => {
+  const databases = getMoleculeDatabases(moleculeOrDatabase);
+  const activeOrder = new Map(
+    activeDatabases.map((database, index) => [normalize(database), index])
+  );
+
+  return [...databases].sort((a, b) => {
+    const aOrder = activeOrder.get(normalize(a));
+    const bOrder = activeOrder.get(normalize(b));
+
+    if (aOrder == null && bOrder == null) return 0;
+    if (aOrder == null) return 1;
+    if (bOrder == null) return -1;
+    return aOrder - bOrder;
+  });
+};
+
+export const formatMoleculeDatabasesByActiveFilter = (
+  moleculeOrDatabase,
+  activeDatabases = [],
+  fallback = ''
+) => {
+  const databases = sortMoleculeDatabasesByActiveFilter(moleculeOrDatabase, activeDatabases);
+  return databases.length ? databases.join(', ') : fallback;
+};
+
+export const moleculeMatchesDatabase = (molecule, database) => {
+  const normalizedDatabase = normalize(database);
+  return getMoleculeDatabases(molecule).some(
+    (molDatabase) => normalize(molDatabase) === normalizedDatabase
+  );
+};
+
+export const moleculeDatabaseSearchText = (molecule) =>
+  getMoleculeDatabases(molecule).join(' ');
+
+export const normalizeDatabaseFormValue = (value) => {
+  const rawValues = Array.isArray(value) ? value : String(value || '').split(',');
+  const databases = rawValues
+    .map((database) => String(database || '').trim())
+    .filter(Boolean);
+
+  return databases.length ? databases : [NOT_INFORMED];
+};
+
 export const normalizeMoleculeFormData = (data) => {
   const normalized = {};
 
   Object.entries(data).forEach(([key, value]) => {
+    if (key === 'database') {
+      normalized[key] = normalizeDatabaseFormValue(value);
+      return;
+    }
+
     const trimmedValue = normalizeFormTextValue(value);
 
     if (MOLECULE_TEXT_PLACEHOLDER_FIELDS.has(key)) {
